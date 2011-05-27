@@ -83,7 +83,7 @@ class PgHelper(object):
         self._connections[db] = DBAPI.connect(
             host=self._host,
             port=self._port,
-            database=db,
+            database=str(db),
             user=self._username,
             password=self._password)
 
@@ -112,8 +112,46 @@ class PgHelper(object):
 
         return databases
 
+    def getDatabaseStats(self):
+        cursor = self.getConnection('postgres').cursor()
+
+        databaseStats = {}
+
+        try:
+            cursor.execute(
+                "SELECT d.datname,"
+                "       pg_database_size(s.datid) AS size,"
+                "       numbackends,"
+                "       xact_commit, xact_rollback,"
+                "       blks_read, blks_hit,"
+                "       tup_returned, tup_fetched, tup_inserted,"
+                "       tup_updated, tup_deleted"
+                "  FROM pg_database AS d"
+                "  JOIN pg_stat_database AS s ON s.datname = d.datname"
+                " WHERE NOT datistemplate AND datallowconn"
+            )
+
+            for row in cursor.fetchall():
+                databaseStats[row[0]] = dict(
+                    size=row[1],
+                    numBackends=row[2],
+                    xactCommit=row[3],
+                    xactRollback=row[4],
+                    blksRead=row[5],
+                    blksHit=row[6],
+                    tupReturned=row[7],
+                    tupFetched=row[8],
+                    tupInserted=row[9],
+                    tupUpdated=row[10],
+                    tupDeleted=row[11],
+                )
+        finally:
+            cursor.close()
+
+        return databaseStats
+
     def getTablesInDatabase(self, db):
-        cursor = self.getConnection(str(db)).cursor()
+        cursor = self.getConnection(db).cursor()
 
         tables = {}
 
@@ -136,4 +174,47 @@ class PgHelper(object):
             cursor.close()
 
         return tables
+
+    def getTableStatsForDatabase(self, db):
+        cursor = self.getConnection(db).cursor()
+
+        tableStats = {}
+
+        try:
+            cursor.execute(
+                "SELECT relname,"
+                "       pg_relation_size(relid),"
+                "       pg_total_relation_size(relid),"
+                "       seq_scan, seq_tup_read,"
+                "       idx_scan, idx_tup_fetch,"
+                "       n_tup_ins, n_tup_upd, n_tup_del,"
+                "       n_tup_hot_upd, n_live_tup, n_dead_tup,"
+                "       last_vacuum, last_autovacuum,"
+                "       last_analyze, last_autoanalyze"
+                "  FROM pg_stat_user_tables"
+            )
+
+            for row in cursor.fetchall():
+                tableStats[row[0]] = dict(
+                    size=row[1],
+                    totalSize=row[2],
+                    seqScan=row[3],
+                    seqTupRead=row[4],
+                    idxScan=row[5],
+                    idxTupFetch=row[6],
+                    nTupIns=row[7],
+                    nTupUpd=row[8],
+                    nTupDel=row[9],
+                    nTupHotUpd=row[10],
+                    nLiveTup=row[11],
+                    nDeadTup=row[12],
+                    lastVacuum=row[13],
+                    lastAutoVacuum=row[14],
+                    lastAnalyze=row[15],
+                    lastAutoAnalyze=row[16],
+                )
+        finally:
+            cursor.close()
+
+        return tableStats
 

@@ -13,18 +13,20 @@
 ###########################################################################
 
 import json
+import md5
+import os
 import sys
+import tempfile
+import time
 
-from util import addLocalLibPath
-addLocalLibPath()
-
-from pg8000 import DBAPI
+from util import PgHelper
 
 class PostgresPoller(object):
     _host = None
     _port = None
     _username = None
     _password = None
+    _data = None
 
     def __init__(self, host, port, username, password):
         self._host = host
@@ -32,25 +34,57 @@ class PostgresPoller(object):
         self._username = username
         self._password = password
 
+    def _getTempFilename(self):
+        target_hash = md5.md5('{0}+{1}+{2}'.format(
+            self._host, self._port, self._username)).hexdigest()
+
+        return os.path.join(
+            tempfile.gettempdir(),
+            '.zenoss_postgres_{0}'.format(target_hash))
+
+    def _cacheData(self):
+        tmpfile = self._getTempFilename()
+        tmp = open(tmpfile, 'w')
+        json.dump(self._data, tmp)
+        tmp.close()
+
+    def _loadData(self):
+        if self._data:
+            return
+
+        tmpfile = self._getTempFilename()
+        if not os.path.isfile(tmpfile):
+            return None
+
+        # Make sure temporary data isn't too stale.
+        if os.stat(tmpfile).st_mtime < (time.time() - 50):
+            os.unlink(tmpfile)
+            return None
+
+        tmp = open(tmpfile, 'r')
+        self._data = json.load(tmp)
+        tmp.close()
+
+        self._cacheData()
+
     def getData(self):
-        conn = DBAPI.connect(
-            host=self._host,
-            port=self._port,
-            user=self._user,
-            password=self._password)
+        self._loadData()
 
-        data = {}
-        data['events'] = []
+        if not self._data:
+            pg = PgHelper(
+                self._host, self._port, self._username, self._password)
 
-        # TODO: Error handling.
-        cursor = conn.cursor()
-        cursor.execute("SELECT 1")
-        rows = cursor.fetchall()
-        for row in rows:
-            # TODO: Implementation.
-            data['dpName'] = row[0]
+            self._data = dict(
+                events=[],
+                databaseStats = pg.getDatabaseStats(),
+            )
 
-        return data
+            for dbName in self._data['databaseStats'].keys():
+                self._data['databaseStats'][dbName]['tableStats'] = \
+                    pg.getTableStatsForDatabase(dbName)
+
+        self._cacheData()
+        return self._data
 
     def printJSON(self):
         data = None
