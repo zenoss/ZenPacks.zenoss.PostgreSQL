@@ -82,7 +82,7 @@ class PgHelper(object):
 
         self._connections[db] = DBAPI.connect(
             host=self._host,
-            port=self._port,
+            port=int(self._port),
             database=str(db),
             user=self._username,
             password=self._password)

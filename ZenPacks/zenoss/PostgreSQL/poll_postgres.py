@@ -99,7 +99,7 @@ class PostgresPoller(object):
         except Exception, ex:
             data = dict(
                 events=[dict(
-                    severity=5,
+                    severity=4,
                     summary='postgres failure: {0}'.format(ex),
                     eventKey='postgresFailure',
                     eventClassKey='postgresFailure',
@@ -111,7 +111,7 @@ class PostgresPoller(object):
 if __name__ == '__main__':
     host = port = username = password = None
     try:
-        host, port, username, password = sys.argv[1:4]
+        host, port, username, password = sys.argv[1:5]
     except ValueError:
         print >> sys.stderr,"Usage: {0} <host> <port> <username> <password>" \
             .format(sys.argv[0])
