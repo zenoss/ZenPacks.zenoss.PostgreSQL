@@ -77,6 +77,7 @@ ZC.PostgreSQLDatabasePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
                 {name: 'severity'},
                 {name: 'entity'},
                 {name: 'dbSize'},
+                {name: 'tableCount'},
                 {name: 'monitor'},
                 {name: 'monitored'}
             ],
@@ -134,6 +135,7 @@ ZC.PostgreSQLTablePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
                 {name: 'name'},
                 {name: 'severity'},
                 {name: 'entity'},
+                {name: 'database'},
                 {name: 'tableSchema'},
                 {name: 'tableSize'},
                 {name: 'totalTableSize'},
@@ -153,6 +155,12 @@ ZC.PostgreSQLTablePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
                 header: _t('Name'),
                 renderer: Zenoss.render.entityLinkFromGrid,
                 panel: this
+            },{
+                id: 'database',
+                dataIndex: 'database',
+                header: _t('Database'),
+                renderer: Zenoss.render.entityLinkFromGrid,
+                width: 80
             },{
                 id: 'tableSchema',
                 dataIndex: 'tableSchema',

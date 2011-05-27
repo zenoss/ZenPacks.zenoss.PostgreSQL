@@ -14,30 +14,11 @@
 import logging
 log = logging.getLogger('zen.PostgreSQL')
 
-from ....util import addLocalLibPath
-addLocalLibPath()
-
-from pg8000 import DBAPI
-
 from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
 
-SQL = {
-    'DATABASES': (
-        "SELECT d.datname, s.datid, pg_database_size(s.datid) AS size"
-        "  FROM pg_database AS d"
-        "  JOIN pg_stat_database AS s ON s.datname = d.datname"
-        " WHERE NOT datistemplate AND datallowconn"
-    ),
-
-    'TABLES': (
-        "SELECT relname, relname, schemaname,"
-        "       pg_relation_size(relid) AS size,"
-        "       pg_total_relation_size(relid) AS total_size"
-        "  FROM pg_stat_user_tables"
-    ),
-}
+from ....util import PgHelper
 
 class PostgreSQL(PythonPlugin):
     deviceProperties = PythonPlugin.deviceProperties + (
@@ -47,45 +28,20 @@ class PostgreSQL(PythonPlugin):
     )
 
     def collect(self, device, unused):
-        results = dict(databases={})
+        pg = PgHelper(
+            device.manageIp,
+            device.zPostgreSQLPort,
+            device.zPostgreSQLUsername,
+            device.zPostgreSQLPassword)
 
-        # TODO: Error handling.
-        log.info("Connecting to database: postgres")
-        conn = cursor = None
+        results = {}
+
+        log.info("Getting database list")
         try:
-            conn = DBAPI.connect(
-                host=device.manageIp,
-                port=device.zPostgreSQLPort,
-                database='postgres',
-                user=device.zPostgreSQLUsername,
-                password=device.zPostgreSQLPassword)
-
-            cursor = conn.cursor()
-
-            log.info("Querying for databases")
-            cursor.execute(SQL['DATABASES'])
-            for row in cursor.fetchall():
-                datname, datid, size = row
-                results['databases'][datname] = dict(
-                    oid=datid,
-                    size=size,
-                )
-
-            cursor.close()
-            conn.close()
-
+            results['databases'] = pg.getDatabases()
         except Exception, ex:
-            log.warn("Error connecting to {0}: {1}".format(
-                'postgres', ex))
-
+            log.warn("Error getting database list: {0}".format(ex))
             return None
-
-        finally:
-            try:
-                cursor.close()
-                conn.close()
-            except Exception:
-                pass
 
         for dbName in results['databases'].keys():
             if dbName == 'postgres':
@@ -93,40 +49,15 @@ class PostgreSQL(PythonPlugin):
 
             results['databases'][dbName]['tables'] = {}
 
-            log.info("Connecting to database: {0}".format(dbName))
+            log.info("Getting tables list for {0}".format(dbName))
             try:
-                conn = DBAPI.connect(
-                    host=device.manageIp,
-                    port=device.zPostgreSQLPort,
-                    database=str(dbName),
-                    user=device.zPostgreSQLUsername,
-                    password=device.zPostgreSQLPassword)
-
-                cursor = conn.cursor()
-
-                log.info("Querying for tables in {0}".format(dbName))
-                cursor.execute(SQL['TABLES'])
-                for row in cursor.fetchall():
-                    relname, relid, schemaname, size, total_size = row
-                    results['databases'][dbName]['tables'][relname] = dict(
-                        oid=relid,
-                        schema=schemaname,
-                        size=size,
-                        totalSize=total_size,
-                    )
-
+                results['databases'][dbName]['tables'] = \
+                    pg.getTablesInDatabase(dbName)
             except Exception, ex:
-                log.warn("Error connecting to {0}: {1}".format(
+                log.warn("Error getting tables list for {0}: {1}".format(
                     dbName, ex))
 
                 continue
-
-            finally:
-                try:
-                    cursor.close()
-                    conn.close()
-                except Exception:
-                    pass
 
         return results
 

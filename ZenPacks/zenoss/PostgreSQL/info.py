@@ -46,6 +46,10 @@ class DatabaseInfo(PostgreSQLComponentInfo):
         return convToUnits(
             self._object.getIntForValue('dbSize'), 1024, 'B')
 
+    @property
+    def tableCount(self):
+        return self._object.tables.countObjects()
+
 class TableInfo(PostgreSQLComponentInfo):
     implements(ITableInfo)
     adapts(Table)
@@ -57,6 +61,11 @@ class TableInfo(PostgreSQLComponentInfo):
     totalTableSize = CollectedOrModeledProperty('totalTableSize')
 
     @property
+    def totalTableSizeString(self):
+        return convToUnits(
+            self._object.getIntForValue('totalTableSize'), 1024, 'B')
+
+    @property
     @info
     def database(self):
         return self._object.database()
@@ -65,9 +74,4 @@ class TableInfo(PostgreSQLComponentInfo):
     def tableSizeString(self):
         return convToUnits(
             self._object.getIntForValue('tableSize'), 1024, 'B')
-
-    @property
-    def totalTableSizeString(self):
-        return convToUnits(
-            self._object.getIntForValue('totalTableSize'), 1024, 'B')
 

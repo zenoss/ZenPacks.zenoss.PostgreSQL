@@ -19,6 +19,7 @@ class IDatabaseInfo(IComponentInfo):
     dbName = schema.Text(title=_t(u"Database Name"))
     dbOid = schema.Int(title=_t(u"Database OID"))
     dbSizeString = schema.Int(title=_t(u"Database Size"))
+    tableCount = schema.Int(title=_t(u"Table Count"))
 
 class ITableInfo(IComponentInfo):
     tableName = schema.Text(title=_t(u"Table Name"))
@@ -26,4 +27,5 @@ class ITableInfo(IComponentInfo):
     tableSchema = schema.Text(title=_t(u"Table Schema"))
     tableSizeString = schema.Int(title=_t(u"Table Size"))
     totalTableSizeString = schema.Int(title=_t(u"Total Table Size"))
+    database = schema.Entity(title=_t(u"Database"))
 
