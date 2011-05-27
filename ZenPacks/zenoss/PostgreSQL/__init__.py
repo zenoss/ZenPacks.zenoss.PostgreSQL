@@ -17,6 +17,12 @@ log = logging.getLogger('zen.PostgreSQL')
 from Products.ZenModel.ZenPack import ZenPack as ZenPackBase
 
 class ZenPack(ZenPackBase):
+    packZProperties = [
+        ('zPostgresPort', 5432, 'int'),
+        ('zPostgresUsername', 'postgres', 'string'),
+        ('zPostgresPassword', '', 'password'),
+    ]
+
     def install(self, app):
         super(ZenPack, self).install(app)
         self.symlinkPlugin()
@@ -28,10 +34,12 @@ class ZenPack(ZenPackBase):
         super(ZenPack, self).remove(app, leaveObjects=leaveObjects)
 
     def symlinkPlugin(self):
-        # TODO: Implementation.
-        pass
+        log.info('Linking poll_postgres.py plugin into $ZENHOME/libexec/')
+        os.system('ln -sf {0} {1}'.format(
+            self.path('poll_postgres.py'),
+            zenPath('libexec', 'poll_postgres.py')))
 
     def removePluginSymlink(self):
-        # TODO: Implementation.
-        pass
+        log.info('Removing poll_postgres.py link from $ZENHOME/libexec/')
+        os.system('rm -f {0}'.format(zenPath('libexec', 'poll_postgres.py')))
 
