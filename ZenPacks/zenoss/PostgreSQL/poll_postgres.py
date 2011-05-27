@@ -74,14 +74,54 @@ class PostgresPoller(object):
             pg = PgHelper(
                 self._host, self._port, self._username, self._password)
 
-            self._data = dict(
-                events=[],
-                databaseStats = pg.getDatabaseStats(),
+            # Calculated server-level stats.
+            databaseSummaries = dict(
+                size=0,
+                numBackends=0,
+                xactCommit=0,
+                xactRollback=0,
+                blksRead=0,
+                blksHit=0,
+                tupReturned=0,
+                tupFetched=0,
+                tupInserted=0,
+                tupUpdated=0,
+                tupDeleted=0,
             )
 
-            for dbName in self._data['databaseStats'].keys():
-                self._data['databaseStats'][dbName]['tableStats'] = \
-                    pg.getTableStatsForDatabase(dbName)
+            tableSummaries = dict(
+                seqScan=0,
+                seqTupRead=0,
+                idxScan=0,
+                idxTupFetch=0,
+                nTupIns=0,
+                nTupUpd=0,
+                nTupDel=0,
+                nTupHotUpd=0,
+                nLiveTup=0,
+                nDeadTup=0,
+            )
+
+            self._data = dict(events=[])
+
+            databases = pg.getDatabaseStats()
+            for dbName, dbStats in databases.items():
+                for statName in databaseSummaries.keys():
+                    if statName in dbStats and dbStats[statName] is not None:
+                        databaseSummaries[statName] += dbStats[statName]
+
+                tables = pg.getTableStatsForDatabase(dbName)
+                for tableName, tableStats in tables.items():
+                    for statName in tableSummaries.keys():
+                        if statName in tableStats \
+                            and tableStats[statName] is not None:
+                            tableSummaries[statName] += tableStats[statName]
+                            
+                databases[dbName]['tables'] = tables
+
+            self._data.update(databaseSummaries)
+            self._data.update(tableSummaries)
+            self._data['databases'] = databases
 
         self._cacheData()
         return self._data
