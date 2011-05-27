@@ -1,3 +1,16 @@
+###########################################################################
+#
+# This program is part of Zenoss Core, an open source monitoring platform.
+# Copyright (C) 2011, Zenoss Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 2 or (at your
+# option) any later version as published by the Free Software Foundation.
+#
+# For complete information please visit: http://www.zenoss.com/oss/
+#
+###########################################################################
+
 ################################
 # These variables are overwritten by Zenoss when the ZenPack is exported
 # or saved.  Do not modify them directly here.
@@ -16,6 +29,14 @@ PREV_ZENPACK_NAME = ""
 # Zenoss will not overwrite any changes you make below here.
 
 from setuptools import setup, find_packages
+
+# make build
+import subprocess
+p = subprocess.Popen('make build', shell=True)
+if p.poll() == None:
+        p.wait()
+if p.returncode != 0:
+    raise Exception('make exited with an error: %s' % p.returncode)
 
 setup(
     # This ZenPack metadata should usually be edited with the Zenoss
