@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configure xmlns="http://namespaces.zope.org/browser">
+
+    <resourceDirectory
+        name="postgresql"
+        directory="resources"
+        />
+
+    <viewlet
+        name="js-postgresql"
+        paths="/++resource++postgresql/js/PostgreSQL.js"
+        weight="10"
+        for="Products.ZenModel.Device.Device"
+        manager="Products.ZenUI3.browser.interfaces.IJavaScriptSrcManager"
+        class="Products.ZenUI3.browser.javascript.JavaScriptSrcBundleViewlet"
+        permission="zope2.Public"
+        />
+
+</configure>
+
