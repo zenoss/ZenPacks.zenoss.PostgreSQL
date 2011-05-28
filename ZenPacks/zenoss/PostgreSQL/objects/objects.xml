@@ -6,12 +6,15 @@
 ZenPacks.zenoss.PostgreSQL.Database
 </property>
 <tomanycont id='datasources'>
-<object id='postgres' module='Products.ZenModel.BasicDataSource' class='BasicDataSource'>
+<object id='pgDatabase' module='Products.ZenModel.BasicDataSource' class='BasicDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
 COMMAND
 </property>
 <property type="boolean" id="enabled" mode="w" >
 True
+</property>
+<property type="string" id="component" mode="w" >
+${here/id}
 </property>
 <property type="string" id="eventClass" mode="w" >
 /Status
@@ -23,7 +26,7 @@ postgresFailure
 4
 </property>
 <property type="string" id="commandTemplate" mode="w" >
-poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}'
+poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' database
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
@@ -32,7 +35,7 @@ poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQ
 False
 </property>
 <property type="string" id="parser" mode="w" >
-ZenPacks.zenoss.PostgreSQL.parsers.server
+ZenPacks.zenoss.PostgreSQL.parsers.database
 </property>
 <tomanycont id='datapoints'>
 <object id='blksHit' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -307,7 +310,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_numBackends
+pgDatabasenumBackends
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -361,7 +364,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_size
+pgDatabasesize
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -421,7 +424,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_idxScan
+pgDatabaseidxScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -447,7 +450,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_seqScan
+pgDatabaseseqScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -507,7 +510,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupDel
+pgDatabasenTupDel
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -536,7 +539,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupHotUpd
+pgDatabasenTupHotUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -565,7 +568,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_idxTupFetch
+pgDatabaseidxTupFetch
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -594,7 +597,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupIns
+pgDatabasenTupIns
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -620,7 +623,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_seqTupRead
+pgDatabaseseqTupRead
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -649,7 +652,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupUpd
+pgDatabasenTupUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -709,7 +712,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nDeadTup
+pgDatabasenDeadTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -735,7 +738,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nLiveTup
+pgDatabasenLiveTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -792,7 +795,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_xactCommit
+pgDatabasexactCommit
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -821,7 +824,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_xactRollback
+pgDatabasexactRollback
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -881,7 +884,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupDeleted
+pgDatabasetupDeleted
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -910,7 +913,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupFetched
+pgDatabasetupFetched
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -939,7 +942,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupInserted
+pgDatabasetupInserted
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -965,7 +968,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupReturned
+pgDatabasetupReturned
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -994,7 +997,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupUpdated
+pgDatabasetupUpdated
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1010,7 +1013,7 @@ AVERAGE
 Products.ZenModel.Device
 </property>
 <tomanycont id='datasources'>
-<object id='postgres' module='Products.ZenModel.BasicDataSource' class='BasicDataSource'>
+<object id='pgServer' module='Products.ZenModel.BasicDataSource' class='BasicDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
 COMMAND
 </property>
@@ -1027,7 +1030,7 @@ postgresFailure
 4
 </property>
 <property type="string" id="commandTemplate" mode="w" >
-poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}'
+poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' server
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
@@ -1311,7 +1314,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_numBackends
+pgServer_numBackends
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1365,7 +1368,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_size
+pgServer_size
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1422,7 +1425,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_xactCommit
+pgServer_xactCommit
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1451,7 +1454,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_xactRollback
+pgServer_xactRollback
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1511,7 +1514,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupDeleted
+pgServer_tupDeleted
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1540,7 +1543,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupFetched
+pgServer_tupFetched
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1569,7 +1572,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupInserted
+pgServer_tupInserted
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1595,7 +1598,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupReturned
+pgServer_tupReturned
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1624,7 +1627,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_tupUpdated
+pgServer_tupUpdated
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1684,7 +1687,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_idxScan
+pgServer_idxScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1710,7 +1713,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_seqScan
+pgServer_seqScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1770,7 +1773,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupDel
+pgServer_nTupDel
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1799,7 +1802,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupHotUpd
+pgServer_nTupHotUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1828,7 +1831,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_idxTupFetch
+pgServer_idxTupFetch
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1857,7 +1860,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupIns
+pgServer_nTupIns
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1883,7 +1886,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_seqTupRead
+pgServer_seqTupRead
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1912,7 +1915,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupUpd
+pgServer_nTupUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1972,7 +1975,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nDeadTup
+pgServer_nDeadTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -1998,7 +2001,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nLiveTup
+pgServer_nLiveTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2014,12 +2017,15 @@ AVERAGE
 ZenPacks.zenoss.PostgreSQL.Table
 </property>
 <tomanycont id='datasources'>
-<object id='postgres' module='Products.ZenModel.BasicDataSource' class='BasicDataSource'>
+<object id='pgTable' module='Products.ZenModel.BasicDataSource' class='BasicDataSource'>
 <property select_variable="sourcetypes" type="selection" id="sourcetype" mode="w" >
 COMMAND
 </property>
 <property type="boolean" id="enabled" mode="w" >
 True
+</property>
+<property type="string" id="component" mode="w" >
+${here/id}
 </property>
 <property type="string" id="eventClass" mode="w" >
 /Status
@@ -2031,7 +2037,7 @@ postgresFailure
 4
 </property>
 <property type="string" id="commandTemplate" mode="w" >
-poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}'
+poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' table
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
@@ -2040,7 +2046,7 @@ poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQ
 False
 </property>
 <property type="string" id="parser" mode="w" >
-ZenPacks.zenoss.PostgreSQL.parsers.server
+ZenPacks.zenoss.PostgreSQL.parsers.table
 </property>
 <tomanycont id='datapoints'>
 <object id='idxScan' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
@@ -2208,7 +2214,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_idxScan
+pgTableidxScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2234,7 +2240,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_seqScan
+pgTableseqScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2294,7 +2300,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupDel
+pgTablenTupDel
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2323,7 +2329,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupHotUpd
+pgTablenTupHotUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2352,7 +2358,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_idxTupFetch
+pgTableidxTupFetch
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2381,7 +2387,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupIns
+pgTablenTupIns
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2407,7 +2413,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_seqTupRead
+pgTableseqTupRead
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2436,7 +2442,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nTupUpd
+pgTablenTupUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2496,7 +2502,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nDeadTup
+pgTablenDeadTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2522,7 +2528,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-postgres_nLiveTup
+pgTablenLiveTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
