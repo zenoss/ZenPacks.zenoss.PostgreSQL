@@ -11,6 +11,8 @@
 #
 ###########################################################################
 
+import time
+
 def addLocalLibPath():
     """
     Helper to add the ZenPack's lib directory to PYTHONPATH.
@@ -19,6 +21,9 @@ def addLocalLibPath():
     import site
 
     site.addsitedir(os.path.join(os.path.dirname(__file__), 'lib'))
+
+def datetimeToEpoch(datetime):
+    return time.mktime(datetime.timetuple())
 
 class CollectedOrModeledMixin:
     def getFloatForValue(self, value):
@@ -199,6 +204,11 @@ class PgHelper(object):
             )
 
             for row in cursor.fetchall():
+                row = list(row)
+                for i in range(13, 17):
+                    if row[i] is not None:
+                        row[i] = datetimeToEpoch(row[i])
+
                 tableStats[row[0]] = dict(
                     size=row[1],
                     totalSize=row[2],

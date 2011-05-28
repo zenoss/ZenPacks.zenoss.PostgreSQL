@@ -310,7 +310,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasenumBackends
+pgDatabase_numBackends
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -364,7 +364,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasesize
+pgDatabase_size
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -424,7 +424,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabaseidxScan
+pgDatabase_idxScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -450,7 +450,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabaseseqScan
+pgDatabase_seqScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -510,7 +510,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasenTupDel
+pgDatabase_nTupDel
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -539,7 +539,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasenTupHotUpd
+pgDatabase_nTupHotUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -568,7 +568,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabaseidxTupFetch
+pgDatabase_idxTupFetch
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -597,7 +597,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasenTupIns
+pgDatabase_nTupIns
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -623,7 +623,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabaseseqTupRead
+pgDatabase_seqTupRead
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -652,7 +652,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasenTupUpd
+pgDatabase_nTupUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -712,7 +712,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasenDeadTup
+pgDatabase_nDeadTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -738,7 +738,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasenLiveTup
+pgDatabase_nLiveTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -795,7 +795,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasexactCommit
+pgDatabase_xactCommit
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -824,7 +824,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasexactRollback
+pgDatabase_xactRollback
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -884,7 +884,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasetupDeleted
+pgDatabase_tupDeleted
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -913,7 +913,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasetupFetched
+pgDatabase_tupFetched
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -942,7 +942,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasetupInserted
+pgDatabase_tupInserted
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -968,7 +968,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasetupReturned
+pgDatabase_tupReturned
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -997,7 +997,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgDatabasetupUpdated
+pgDatabase_tupUpdated
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2214,7 +2214,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTableidxScan
+pgTable_idxScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2240,7 +2240,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTableseqScan
+pgTable_seqScan
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2300,7 +2300,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTablenTupDel
+pgTable_nTupDel
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2329,7 +2329,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTablenTupHotUpd
+pgTable_nTupHotUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2358,7 +2358,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTableidxTupFetch
+pgTable_idxTupFetch
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2387,7 +2387,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTablenTupIns
+pgTable_nTupIns
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2413,7 +2413,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTableseqTupRead
+pgTable_seqTupRead
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2442,7 +2442,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTablenTupUpd
+pgTable_nTupUpd
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2502,7 +2502,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTablenDeadTup
+pgTable_nDeadTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
@@ -2528,7 +2528,7 @@ ${graphPoint/id}
 -1
 </property>
 <property type="string" id="dpName" mode="w" >
-pgTablenLiveTup
+pgTable_nLiveTup
 </property>
 <property type="string" id="cFunc" mode="w" >
 AVERAGE
