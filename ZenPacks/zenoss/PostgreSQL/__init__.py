@@ -27,6 +27,7 @@ class ZenPack(ZenPackBase):
         ('zPostgreSQLPort', 5432, 'int'),
         ('zPostgreSQLUsername', 'postgres', 'string'),
         ('zPostgreSQLPassword', '', 'password'),
+        ('zPostgreSQLUseSSL', False, 'boolean'),
     ]
 
     def install(self, app):

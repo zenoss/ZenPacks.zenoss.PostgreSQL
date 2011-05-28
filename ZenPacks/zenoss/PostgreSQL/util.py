@@ -60,13 +60,15 @@ class PgHelper(object):
     _port = None
     _username = None
     _password = None
+    _ssl = None
     _connections = None
 
-    def __init__(self, host, port, username, password):
+    def __init__(self, host, port, username, password, ssl):
         self._host = host
         self._port = port
         self._username = username
         self._password = password
+        self._ssl = ssl
         self._connections = {}
 
     def __del__(self):
@@ -85,7 +87,9 @@ class PgHelper(object):
             port=int(self._port),
             database=str(db),
             user=self._username,
-            password=self._password)
+            password=self._password,
+            socket_timeout=10,
+            ssl=self._ssl)
 
         return self._connections[db]
 

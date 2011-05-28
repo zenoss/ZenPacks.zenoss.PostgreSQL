@@ -25,6 +25,7 @@ class PostgreSQL(PythonPlugin):
         'zPostgreSQLPort',
         'zPostgreSQLUsername',
         'zPostgreSQLPassword',
+        'zPostgreSQLUseSSL',
     )
 
     def collect(self, device, unused):
@@ -32,7 +33,8 @@ class PostgreSQL(PythonPlugin):
             device.manageIp,
             device.zPostgreSQLPort,
             device.zPostgreSQLUsername,
-            device.zPostgreSQLPassword)
+            device.zPostgreSQLPassword,
+            device.zPostgreSQLUseSSL)
 
         results = {}
 

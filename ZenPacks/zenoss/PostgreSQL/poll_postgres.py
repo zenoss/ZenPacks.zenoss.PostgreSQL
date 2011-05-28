@@ -12,6 +12,7 @@
 #
 ###########################################################################
 
+import copy
 import json
 import md5
 import os
@@ -28,11 +29,12 @@ class PostgresPoller(object):
     _password = None
     _data = None
 
-    def __init__(self, host, port, username, password):
+    def __init__(self, host, port, username, password, ssl):
         self._host = host
         self._port = port
         self._username = username
         self._password = password
+        self._ssl = ssl
 
     def _getTempFilename(self):
         target_hash = md5.md5('{0}+{1}+{2}'.format(
@@ -72,7 +74,11 @@ class PostgresPoller(object):
 
         if not self._data:
             pg = PgHelper(
-                self._host, self._port, self._username, self._password)
+                self._host,
+                self._port,
+                self._username,
+                self._password,
+                self._ssl)
 
             # Calculated server-level stats.
             databaseSummaries = dict(
@@ -102,10 +108,14 @@ class PostgresPoller(object):
                 nDeadTup=0,
             )
 
+            dbTableSummaries = copy.copy(tableSummaries)
+
             self._data = dict(events=[])
 
             databases = pg.getDatabaseStats()
             for dbName, dbStats in databases.items():
+                local_dbTableSummaries = copy.copy(dbTableSummaries)
+
                 for statName in databaseSummaries.keys():
                     if statName in dbStats and dbStats[statName] is not None:
                         databaseSummaries[statName] += dbStats[statName]
@@ -116,7 +126,10 @@ class PostgresPoller(object):
                         if statName in tableStats \
                             and tableStats[statName] is not None:
                             tableSummaries[statName] += tableStats[statName]
+                            local_dbTableSummaries[statName] += \
+                                tableStats[statName]
                             
+                databases[dbName].update(local_dbTableSummaries)
                 databases[dbName]['tables'] = tables
 
             self._data.update(databaseSummaries)
@@ -149,15 +162,18 @@ class PostgresPoller(object):
         print json.dumps(data)
 
 if __name__ == '__main__':
-    host = port = username = password = None
-    try:
-        host, port, username, password = sys.argv[1:5]
-    except ValueError:
-        print >> sys.stderr,"Usage: {0} <host> <port> <username> <password>" \
-            .format(sys.argv[0])
+    usage = "Usage: {0} <host> <port> <username> <password <ssl>"
 
+    host = port = username = password = ssl = None
+    try:
+        host, port, username, password, ssl = sys.argv[1:6]
+    except ValueError:
+        print >> sys.stderr, usage.format(sys.argv[0])
         sys.exit(1)
 
-    poller = PostgresPoller(host, port, username, password)
+    if ssl == 'False':
+        ssl = False
+
+    poller = PostgresPoller(host, port, username, password, ssl)
     poller.printJSON()
 
