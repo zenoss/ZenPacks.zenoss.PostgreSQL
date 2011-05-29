@@ -85,9 +85,10 @@ class PgHelper(object):
 
     def getConnection(self, db):
         if db in self._connections and self._connections[db]:
-            return self._connections[db]
+            return self._connections[db]['connection']
 
-        self._connections[db] = DBAPI.connect(
+        connection_begin = time.time()
+        connection = DBAPI.connect(
             host=self._host,
             port=int(self._port),
             database=str(db),
@@ -96,7 +97,22 @@ class PgHelper(object):
             socket_timeout=10,
             ssl=self._ssl)
 
-        return self._connections[db]
+        connection_latency = time.time() - connection_begin
+
+        query_begin = time.time()
+        cursor = connection.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchall()
+        cursor.close()
+        query_latency = time.time() - query_begin
+
+        self._connections[db] = dict(
+            connection=connection,
+            connection_latency=connection_latency,
+            query_latency=query_latency,
+        )
+
+        return self._connections[db]['connection']
 
     def getDatabases(self):
         cursor = self.getConnection('postgres').cursor()
@@ -158,6 +174,14 @@ class PgHelper(object):
             cursor.close()
 
         return databaseStats
+
+    def getConnectionLatencyForDatabase(self, db):
+        self.getConnection(db)
+        return self._connections[db]['connection_latency']
+
+    def getQueryLatencyForDatabase(self, db):
+        self.getConnection(db)
+        return self._connections[db]['query_latency']
 
     def getTablesInDatabase(self, db):
         cursor = self.getConnection(db).cursor()

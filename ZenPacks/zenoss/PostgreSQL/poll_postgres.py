@@ -73,12 +73,20 @@ class PostgresPoller(object):
         self._loadData()
 
         if not self._data:
+            self._data = dict(events=[])
+
             pg = PgHelper(
                 self._host,
                 self._port,
                 self._username,
                 self._password,
                 self._ssl)
+
+            self._data['connectionLatency'] = \
+                pg.getConnectionLatencyForDatabase('postgres')
+
+            self._data['queryLatency'] = \
+                pg.getQueryLatencyForDatabase('postgres')
 
             # Calculated server-level stats.
             databaseSummaries = dict(
@@ -110,10 +118,14 @@ class PostgresPoller(object):
 
             dbTableSummaries = copy.copy(tableSummaries)
 
-            self._data = dict(events=[])
-
             databases = pg.getDatabaseStats()
             for dbName, dbStats in databases.items():
+                databases[dbName]['connectionLatency'] = \
+                    pg.getConnectionLatencyForDatabase(dbName)
+
+                databases[dbName]['queryLatency'] = \
+                    pg.getQueryLatencyForDatabase(dbName)
+
                 local_dbTableSummaries = copy.copy(dbTableSummaries)
 
                 for statName in databaseSummaries.keys():
