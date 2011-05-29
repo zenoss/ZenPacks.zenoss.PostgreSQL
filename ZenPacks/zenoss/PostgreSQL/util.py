@@ -167,15 +167,25 @@ class PgHelper(object):
             )
 
             for row in cursor.fetchall():
+                xactTotal = row[3] + row[4]
+                xactRollbackPct = (float(row[4]) / xactTotal) * 100
+
+                tupTotal = row[7] + row[8]
+                tupFetchedPct = (float(row[8]) / tupTotal) * 100
+
                 databaseStats[row[0]] = dict(
                     size=row[1],
                     numBackends=row[2],
                     xactCommit=row[3],
                     xactRollback=row[4],
+                    xactTotal=xactTotal,
+                    xactRollbackPct=xactRollbackPct,
                     blksRead=row[5],
                     blksHit=row[6],
                     tupReturned=row[7],
                     tupFetched=row[8],
+                    tupTotal=tupTotal,
+                    tupFetchedPct=tupFetchedPct,
                     tupInserted=row[9],
                     tupUpdated=row[10],
                     tupDeleted=row[11],

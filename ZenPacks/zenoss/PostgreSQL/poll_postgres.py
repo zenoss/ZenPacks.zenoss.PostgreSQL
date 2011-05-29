@@ -95,10 +95,12 @@ class PostgresPoller(object):
                 numBackends=0,
                 xactCommit=0,
                 xactRollback=0,
+                xactTotal=0,
                 blksRead=0,
                 blksHit=0,
                 tupReturned=0,
                 tupFetched=0,
+                tupTotal=0,
                 tupInserted=0,
                 tupUpdated=0,
                 tupDeleted=0,
@@ -133,6 +135,17 @@ class PostgresPoller(object):
                 for statName in databaseSummaries.keys():
                     if statName in dbStats and dbStats[statName] is not None:
                         databaseSummaries[statName] += dbStats[statName]
+
+                # Average percentage summaries.
+                for statName in ('xactRollbackPct', 'tupFetchedPct'):
+                    if statName in dbStats and dbStats[statName] is not None:
+                        if statName in databaseSummaries:
+                            databaseSummaries[statName] = (
+                                (databaseSummaries[statName] + \
+                                 dbStats[statName]) / 2.0)
+                        else:
+                            databaseSummaries[statName] = \
+                                dbStats[statName]
 
                 tables = pg.getTableStatsForDatabase(dbName)
                 for tableName, tableStats in tables.items():

@@ -314,6 +314,14 @@ True
 0
 </property>
 </object>
+<object id='tupFetchedPct' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+</object>
 <object id='tupInserted' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
@@ -367,6 +375,14 @@ True
 </property>
 <property type="string" id="rrdmin" mode="w" >
 0
+</property>
+</object>
+<object id='xactRollbackPct' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
 </property>
 </object>
 </tomanycont>
@@ -837,6 +853,92 @@ AVERAGE
 </object>
 </tomanycont>
 </object>
+<object id='Efficiency' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
+<property type="int" id="height" mode="w" >
+100
+</property>
+<property type="int" id="width" mode="w" >
+500
+</property>
+<property type="string" id="units" mode="w" >
+percentage
+</property>
+<property type="boolean" id="log" mode="w" >
+False
+</property>
+<property type="boolean" id="base" mode="w" >
+False
+</property>
+<property type="int" id="miny" mode="w" >
+0
+</property>
+<property type="int" id="maxy" mode="w" >
+100
+</property>
+<property type="boolean" id="hasSummary" mode="w" >
+True
+</property>
+<property type="long" id="sequence" mode="w" >
+5
+</property>
+<tomanycont id='graphPoints'>
+<object id='Tuple Fetches' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+1
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+LINE
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%6.2lf%%
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+pgDatabase_tupFetchedPct
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Txn Rollbacks' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+LINE
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%6.2lf%%
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+pgDatabase_xactRollbackPct
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+</tomanycont>
+</object>
 <object id='Latencies' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
 <property type="int" id="height" mode="w" >
 100
@@ -1003,7 +1105,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-7
+8
 </property>
 <tomanycont id='graphPoints'>
 <object id='Index' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -1089,7 +1191,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-8
+9
 </property>
 <tomanycont id='graphPoints'>
 <object id='Deleted' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -1291,7 +1393,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-9
+10
 </property>
 <tomanycont id='graphPoints'>
 <object id='Dead' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -1377,7 +1479,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-5
+6
 </property>
 <tomanycont id='graphPoints'>
 <object id='Commits' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -1463,7 +1565,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-6
+7
 </property>
 <tomanycont id='graphPoints'>
 <object id='Deleted' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -1923,6 +2025,14 @@ True
 0
 </property>
 </object>
+<object id='tupFetchedPct' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+</object>
 <object id='tupInserted' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
 <property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
 DERIVE
@@ -1976,6 +2086,14 @@ True
 </property>
 <property type="string" id="rrdmin" mode="w" >
 0
+</property>
+</object>
+<object id='xactRollbackPct' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
 </property>
 </object>
 </tomanycont>
@@ -2157,6 +2275,92 @@ AVERAGE
 </object>
 </tomanycont>
 </object>
+<object id='PostgreSQL - Databases - Efficiency' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
+<property type="int" id="height" mode="w" >
+100
+</property>
+<property type="int" id="width" mode="w" >
+500
+</property>
+<property type="string" id="units" mode="w" >
+percentage
+</property>
+<property type="boolean" id="log" mode="w" >
+False
+</property>
+<property type="boolean" id="base" mode="w" >
+False
+</property>
+<property type="int" id="miny" mode="w" >
+0
+</property>
+<property type="int" id="maxy" mode="w" >
+100
+</property>
+<property type="boolean" id="hasSummary" mode="w" >
+True
+</property>
+<property type="long" id="sequence" mode="w" >
+5
+</property>
+<tomanycont id='graphPoints'>
+<object id='Tuple Fetches' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+1
+</property>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+LINE
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%6.2lf%%
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+pgServer_tupFetchedPct
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+<object id='Txn Rollbacks' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
+LINE
+</property>
+<property type="long" id="lineWidth" mode="w" >
+1
+</property>
+<property type="boolean" id="stacked" mode="w" >
+False
+</property>
+<property type="string" id="format" mode="w" >
+%6.2lf%%
+</property>
+<property type="string" id="legend" mode="w" >
+${graphPoint/id}
+</property>
+<property type="long" id="limit" mode="w" >
+-1
+</property>
+<property type="string" id="dpName" mode="w" >
+pgServer_xactRollbackPct
+</property>
+<property type="string" id="cFunc" mode="w" >
+AVERAGE
+</property>
+</object>
+</tomanycont>
+</object>
 <object id='PostgreSQL - Databases - Size' module='Products.ZenModel.GraphDefinition' class='GraphDefinition'>
 <property type="int" id="height" mode="w" >
 100
@@ -2240,7 +2444,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-5
+6
 </property>
 <tomanycont id='graphPoints'>
 <object id='Commits' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -2326,7 +2530,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-6
+7
 </property>
 <tomanycont id='graphPoints'>
 <object id='Deleted' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -2871,7 +3075,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-7
+8
 </property>
 <tomanycont id='graphPoints'>
 <object id='Index' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -2957,7 +3161,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-8
+9
 </property>
 <tomanycont id='graphPoints'>
 <object id='Deleted' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -3159,7 +3363,7 @@ False
 True
 </property>
 <property type="long" id="sequence" mode="w" >
-9
+10
 </property>
 <tomanycont id='graphPoints'>
 <object id='Dead' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
