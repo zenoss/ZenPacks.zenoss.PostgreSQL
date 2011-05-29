@@ -82,11 +82,12 @@ class PostgresPoller(object):
                 self._password,
                 self._ssl)
 
-            self._data['connectionLatency'] = \
-                pg.getConnectionLatencyForDatabase('postgres')
-
-            self._data['queryLatency'] = \
-                pg.getQueryLatencyForDatabase('postgres')
+            self._data.update(
+                connectionLatency=\
+                    pg.getConnectionLatencyForDatabase('postgres'),
+                queryLatency=\
+                    pg.getQueryLatencyForDatabase('postgres'),
+            )
 
             # Calculated server-level stats.
             databaseSummaries = dict(
@@ -120,11 +121,12 @@ class PostgresPoller(object):
 
             databases = pg.getDatabaseStats()
             for dbName, dbStats in databases.items():
-                databases[dbName]['connectionLatency'] = \
-                    pg.getConnectionLatencyForDatabase(dbName)
-
-                databases[dbName]['queryLatency'] = \
-                    pg.getQueryLatencyForDatabase(dbName)
+                databases[dbName].update(
+                    connectionLatency=\
+                        pg.getConnectionLatencyForDatabase(dbName),
+                    queryLatency=\
+                        pg.getQueryLatencyForDatabase(dbName),
+                )
 
                 local_dbTableSummaries = copy.copy(dbTableSummaries)
 
@@ -147,6 +149,13 @@ class PostgresPoller(object):
             self._data.update(databaseSummaries)
             self._data.update(tableSummaries)
             self._data['databases'] = databases
+
+            for k, v in pg.getConnectionStats().items():
+                if k == 'databases':
+                    for dbName, stats in v.items():
+                        self._data['databases'][dbName].update(stats)
+                else:
+                    self._data[k] = v
 
         self._cacheData()
         return self._data

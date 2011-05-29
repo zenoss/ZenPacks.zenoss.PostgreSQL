@@ -11,6 +11,7 @@
 #
 ###########################################################################
 
+import sys
 import time
 
 def addLocalLibPath():
@@ -24,6 +25,15 @@ def addLocalLibPath():
 
 def datetimeToEpoch(datetime):
     return time.mktime(datetime.timetuple())
+
+def datetimeDurationInSeconds(begin, end):
+    d = end - begin
+
+    # Taken from the implementation of timedelta.total_seconds in Python 2.7.
+    # Added microseconds resolution by introducing a float.
+    return (
+        d.microseconds + (d.seconds + d.days * 24 * 3600) * 10**6
+    ) / float(10**6)
 
 class CollectedOrModeledMixin:
     def getFloatForValue(self, value):
@@ -207,6 +217,161 @@ class PgHelper(object):
             cursor.close()
 
         return tables
+
+    def getConnectionStats(self):
+        cursor = self.getConnection('postgres').cursor()
+
+        connectionStats = dict(databases={})
+
+        try:
+            cursor.execute(
+                "SELECT datname, xact_start, query_start, backend_start,"
+                "       now() AS now"
+                "  FROM pg_stat_activity"
+            )
+
+            connectionStats.update(
+                totalConnections=0,
+                activeConnections=0,
+                idleConnections=0,
+            )
+
+            for row in cursor.fetchall():
+                datname, xact_start, query_start, backend_start, now = row
+
+                database = connectionStats['databases'].get(datname, None)
+                if database is None:
+                    database = dict(
+                        totalConnections=0,
+                        activeConnections=0,
+                        idleConnections=0,
+                    )
+
+                # Connection counts.
+                connectionStats['totalConnections'] += 1
+                database['totalConnections'] += 1
+
+                if xact_start is not None:
+                    connectionStats['activeConnections'] += 1
+                    database['activeConnections'] += 1
+                else:
+                    connectionStats['idleConnections'] += 1
+                    database['idleConnections'] += 1
+
+                # Individual query duration summaries.
+                if query_start is not None:
+                    queryDuration = max(
+                        datetimeDurationInSeconds(query_start, now), 0)
+
+                    connectionStats['minQueryDuration'] = min(
+                        connectionStats.get('minQueryDuration', sys.maxint),
+                        queryDuration)
+
+                    connectionStats['maxQueryDuration'] = max(
+                        connectionStats.get('maxQueryDuration', 0),
+                        queryDuration)
+
+                    if 'avgQueryDuration' not in connectionStats:
+                        connectionStats['avgQueryDuration'] = queryDuration
+                    else:
+                        connectionStats['avgQueryDuration'] = (
+                            (connectionStats['avgQueryDuration'] + queryDuration)
+                            / 2)
+
+                    database['minQueryDuration'] = min(
+                        database.get('minQueryDuration', sys.maxint),
+                        queryDuration)
+
+                    database['maxQueryDuration'] = max(
+                        database.get('maxQueryDuration', 0),
+                        queryDuration)
+
+                    if 'avgQueryDuration' not in database:
+                        database['avgQueryDuration'] = queryDuration
+                    else:
+                        database['avgQueryDuration'] = (
+                            (database['avgQueryDuration'] + queryDuration)
+                            / 2)
+
+                # Active transaction duration summaries.
+                if xact_start is not None and query_start is not None:
+                    txnDuration = max(
+                        datetimeDurationInSeconds(xact_start, now), 0)
+
+                    connectionStats['minTxnDuration'] = min(
+                        connectionStats.get('minTxnDuration', sys.maxint),
+                        txnDuration)
+
+                    connectionStats['maxTxnDuration'] = max(
+                        connectionStats.get('maxTxnDuration', 0),
+                        txnDuration)
+
+                    if 'avgTxnDuration' not in connectionStats:
+                        connectionStats['avgTxnDuration'] = txnDuration
+                    else:
+                        connectionStats['avgTxnDuration'] = (
+                            (connectionStats['avgTxnDuration'] + txnDuration)
+                            / 2)
+
+                    database['minTxnDuration'] = min(
+                        database.get('minTxnDuration', sys.maxint),
+                        txnDuration)
+
+                    database['maxTxnDuration'] = max(
+                        database.get('maxTxnDuration', 0),
+                        txnDuration)
+
+                    if 'avgTxnDuration' not in database:
+                        database['avgTxnDuration'] = txnDuration
+                    else:
+                        database['avgTxnDuration'] = (
+                            (database['avgTxnDuration'] + txnDuration)
+                            / 2)
+
+                # Idle transaction duration summaries.
+                elif xact_start is not None and query_start is None:
+                    connectionStats['idleConnections'] += 1
+                    database['idleConnections'] += 1
+
+                    idleDuration = max(
+                        datetimeDurationInSeconds(backend_start, now), 0)
+
+                    connectionStats['minIdleDuration'] = min(
+                        connectionStats.get('minIdleDuration', sys.maxint),
+                        idleDuration)
+
+                    connectionStats['maxIdleDuration'] = max(
+                        connectionStats.get('maxIdleDuration', 0),
+                        idleDuration)
+
+                    if 'avgIdleDuration' not in connectionStats:
+                        connectionStats['avgIdleDuration'] = idleDuration
+                    else:
+                        connectionStats['avgIdleDuration'] = (
+                            (connectionStats['avgIdleDuration'] + idleDuration)
+                            / 2)
+
+                    database['minIdleDuration'] = min(
+                        database.get('minIdleDuration', sys.maxint),
+                        idleDuration)
+
+                    database['maxIdleDuration'] = max(
+                        database.get('maxIdleDuration', 0),
+                        idleDuration)
+
+                    if 'avgIdleDuration' not in database:
+                        database['avgIdleDuration'] = idleDuration
+                    else:
+                        database['avgIdleDuration'] = (
+                            (database['avgIdleDuration'] + idleDuration)
+                            / 2)
+
+                connectionStats['databases'][datname] = database
+
+        finally:
+            cursor.close()
+
+        return connectionStats
 
     def getTableStatsForDatabase(self, db):
         cursor = self.getConnection(db).cursor()
