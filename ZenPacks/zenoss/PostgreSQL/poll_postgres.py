@@ -163,7 +163,16 @@ class PostgresPoller(object):
             self._data.update(tableSummaries)
             self._data['databases'] = databases
 
+            # Connection stats.
             for k, v in pg.getConnectionStats().items():
+                if k == 'databases':
+                    for dbName, stats in v.items():
+                        self._data['databases'][dbName].update(stats)
+                else:
+                    self._data[k] = v
+
+            # Lock stats.
+            for k, v in pg.getLocks().items():
                 if k == 'databases':
                     for dbName, stats in v.items():
                         self._data['databases'][dbName].update(stats)

@@ -11,6 +11,7 @@
 #
 ###########################################################################
 
+import copy
 import sys
 import time
 
@@ -382,6 +383,79 @@ class PgHelper(object):
             cursor.close()
 
         return connectionStats
+
+    def getLocks(self):
+        cursor = self.getConnection('postgres').cursor()
+
+        locksTemplate = dict(
+            locksTotal=0,
+            locksTotalGranted=0,
+            locksTotalWaiting=0,
+        )
+
+        modes = (
+            'AccessShare',
+            'RowShare',
+            'RowExclusive',
+            'ShareUpdateExclusive',
+            'Share',
+            'ShareRowExclusive',
+            'Exclusive',
+            'AccessExclusive',
+            'Other',
+        )
+
+        for mode in modes:
+            locksTemplate.update({
+                'locks{0}'.format(mode): 0,
+                'locks{0}Granted'.format(mode): 0,
+                'locks{0}Waiting'.format(mode): 0,
+            })
+
+        locks = dict(databases={})
+
+        try:
+            cursor.execute(
+                "SELECT d.datname, l.mode, l.granted"
+                "  FROM pg_database AS d"
+                "  LEFT JOIN pg_locks AS l ON l.database = d.oid"
+                " WHERE NOT d.datistemplate AND d.datallowconn"
+            )
+
+            locks.update(locksTemplate)
+
+            for row in cursor.fetchall():
+                datname, mode, granted = row
+
+                database = locks['databases'].get(
+                    datname, copy.copy(locksTemplate))
+
+                locks['locksTotal'] += 1
+                database['locksTotal'] += 1
+
+                statKey = 'locks{0}'.format(mode.replace('Lock', ''))
+                if statKey not in locks:
+                    statKey = 'locksOther'
+
+                locks[statKey] += 1
+
+                if granted:
+                    locks['locksTotalGranted'] += 1
+                    locks['{0}Granted'.format(statKey)] += 1
+                    database['locksTotalGranted'] += 1
+                    database['{0}Granted'.format(statKey)] += 1
+                else:
+                    locks['locksTotalWaiting'] += 1
+                    locks['{0}Waiting'.format(statKey)] += 1
+                    database['locksTotalGranted'] += 1
+                    database['{0}Waiting'.format(statKey)] += 1
+
+                locks['databases'][datname] = database
+
+        finally:
+            cursor.close()
+
+        return locks
 
     def getTableStatsForDatabase(self, db):
         cursor = self.getConnection(db).cursor()
