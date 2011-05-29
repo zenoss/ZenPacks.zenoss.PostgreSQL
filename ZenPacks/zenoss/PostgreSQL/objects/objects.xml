@@ -1091,7 +1091,7 @@ True
 8
 </property>
 <tomanycont id='graphPoints'>
-<object id='AccessExclusive' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<object id='AccessExcl' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
 4
 </property>
@@ -2646,7 +2646,7 @@ True
 8
 </property>
 <tomanycont id='graphPoints'>
-<object id='AccessExclusive' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<object id='AccessExcl' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
 <property type="long" id="sequence" mode="w" >
 4
 </property>
