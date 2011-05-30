@@ -67,7 +67,7 @@ class PostgreSQL(PythonPlugin):
         if results is None:
             return None
 
-        maps = []
+        maps = [ self.objectMap(dict(setPostgreSQL=True)) ]
 
         databases = []
         for dbName, dbDetail in results['databases'].items():
