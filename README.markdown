@@ -140,7 +140,7 @@ performance.
       FROM pg_stat_user_tables
 
 The following queries will be run whenever the PostgreSQL server device is
-remodeled. This will once every 12 hours.
+remodeled. This occur once every 12 hours.
 
     # Database list - Run once.
     SELECT d.datname, s.datid, pg_database_size(s.datid) AS size
