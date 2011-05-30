@@ -19,6 +19,9 @@ class table(CommandParser):
     def processResults(self, cmd, result):
         data = json.loads(cmd.result.output)
 
+        if 'databases' not in data:
+            return result
+
         for point in cmd.points:
             component = cmd.points[0].component
 
