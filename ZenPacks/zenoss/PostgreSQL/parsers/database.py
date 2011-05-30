@@ -17,7 +17,11 @@ from Products.ZenRRD.CommandParser import CommandParser
 
 class database(CommandParser):
     def processResults(self, cmd, result):
-        data = json.loads(cmd.result.output)
+        data = None
+        try:
+            data = json.loads(cmd.result.output)
+        except ValueError:
+            return
 
         if 'databases' not in data:
             return result

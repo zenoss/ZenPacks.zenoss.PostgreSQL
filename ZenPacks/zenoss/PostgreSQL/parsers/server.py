@@ -17,7 +17,12 @@ from Products.ZenRRD.CommandParser import CommandParser
 
 class server(CommandParser):
     def processResults(self, cmd, result):
-        data = json.loads(cmd.result.output)
+        data = None
+        try:
+            data = json.loads(cmd.result.output)
+        except ValueError:
+            return
+
         dp_map = dict([(dp.id, dp) for dp in cmd.points])
 
         for name, dp in dp_map.items():
