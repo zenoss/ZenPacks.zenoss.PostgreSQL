@@ -48,8 +48,11 @@ class ZenPack(ZenPackBase):
 
     def symlinkPlugin(self):
         log.info('Linking poll_postgres.py plugin into $ZENHOME/libexec/')
+        plugin_path = self.path('poll_postgres.py')
+
+        os.system('chmod 0755 {0}'.format(plugin_path))
         os.system('ln -sf {0} {1}'.format(
-            self.path('poll_postgres.py'),
+            plugin_path,
             zenPath('libexec', 'poll_postgres.py')))
 
     def removePluginSymlink(self):
