@@ -156,5 +156,5 @@ remodeled. This occur once every 12 hours.
 
 
 [Zenoss]: <http://www.zenoss.com/>
-[latest PostgreSQL ZenPack]: <https://github.com/downloads/zenoss/ZenPacks.zenoss.PostgreSQL/ZenPacks.zenoss.PostgreSQL-1.0.0-py2.6.egg>
+[latest PostgreSQL ZenPack]: <https://github.com/downloads/zenoss/ZenPacks.zenoss.PostgreSQL/ZenPacks.zenoss.PostgreSQL-1.0.1-py2.6.egg>
 [git repository]: <https://github.com/zenoss/ZenPacks.zenoss.PostgreSQL>
