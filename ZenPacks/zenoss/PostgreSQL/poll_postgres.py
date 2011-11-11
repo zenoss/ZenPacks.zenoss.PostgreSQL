@@ -22,6 +22,7 @@ import time
 
 from util import PgHelper
 
+
 class PostgresPoller(object):
     _host = None
     _port = None
@@ -83,11 +84,9 @@ class PostgresPoller(object):
                 self._ssl)
 
             self._data.update(
-                connectionLatency=\
-                    pg.getConnectionLatencyForDatabase('postgres'),
-                queryLatency=\
-                    pg.getQueryLatencyForDatabase('postgres'),
-            )
+                connectionLatency=pg.getConnectionLatencyForDatabase('postgres'),
+                queryLatency=pg.getQueryLatencyForDatabase('postgres'),
+                )
 
             # Calculated server-level stats.
             databaseSummaries = dict(
@@ -124,11 +123,9 @@ class PostgresPoller(object):
             databases = pg.getDatabaseStats()
             for dbName, dbStats in databases.items():
                 databases[dbName].update(
-                    connectionLatency=\
-                        pg.getConnectionLatencyForDatabase(dbName),
-                    queryLatency=\
-                        pg.getQueryLatencyForDatabase(dbName),
-                )
+                    connectionLatency=pg.getConnectionLatencyForDatabase(dbName),
+                    queryLatency=pg.getQueryLatencyForDatabase(dbName),
+                    )
 
                 local_dbTableSummaries = copy.copy(dbTableSummaries)
 
@@ -155,7 +152,7 @@ class PostgresPoller(object):
                             tableSummaries[statName] += tableStats[statName]
                             local_dbTableSummaries[statName] += \
                                 tableStats[statName]
-                            
+
                 databases[dbName].update(local_dbTableSummaries)
                 databases[dbName]['tables'] = tables
 
@@ -193,9 +190,18 @@ class PostgresPoller(object):
                 eventClassKey='postgresRestored',
             ))
         except Exception, ex:
+            severity = 4
+
+            # Lower some transient failures that will recover quickly to debug
+            # severity.
+
+            # https://github.com/zenoss/ZenPacks.zenoss.PostgreSQL/issues/2
+            if 'Unterminated string' in str(ex):
+                severity = 1
+
             data = dict(
                 events=[dict(
-                    severity=4,
+                    severity=severity,
                     summary='postgres failure: {0}'.format(ex),
                     eventKey='postgresFailure',
                     eventClassKey='postgresFailure',
@@ -203,6 +209,7 @@ class PostgresPoller(object):
             )
 
         print json.dumps(data)
+
 
 if __name__ == '__main__':
     usage = "Usage: {0} <host> <port> <username> <password <ssl>"
@@ -219,4 +226,3 @@ if __name__ == '__main__':
 
     poller = PostgresPoller(host, port, username, password, ssl)
     poller.printJSON()
-
