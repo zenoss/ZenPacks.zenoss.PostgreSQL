@@ -14,7 +14,7 @@ versions are supported. You can download the free Core version of Zenoss from
 Download the [latest PostgreSQL ZenPack][]. Copy this file to your Zenoss
 server and run the following commands as the zenoss user.
 
-    zenpack --install ZenPacks.zenoss.PostgreSQL-1.0.0-py2.6.egg
+    zenpack --install ZenPacks.zenoss.PostgreSQL-1.0.2-py2.6.egg
     zenoss restart
 
 ### Developer Installation (link mode)
@@ -156,5 +156,5 @@ remodeled. This occur once every 12 hours.
 
 
 [Zenoss]: <http://www.zenoss.com/>
-[latest PostgreSQL ZenPack]: <https://github.com/downloads/zenoss/ZenPacks.zenoss.PostgreSQL/ZenPacks.zenoss.PostgreSQL-1.0.1-py2.6.egg>
+[latest PostgreSQL ZenPack]: <https://github.com/downloads/zenoss/ZenPacks.zenoss.PostgreSQL/ZenPacks.zenoss.PostgreSQL-1.0.2-py2.6.egg>
 [git repository]: <https://github.com/zenoss/ZenPacks.zenoss.PostgreSQL>
