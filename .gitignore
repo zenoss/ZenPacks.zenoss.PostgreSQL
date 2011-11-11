@@ -1,0 +1,5 @@
+build
+dist
+ZenPacks/zenoss/PostgreSQL/lib/easy-install.pth
+ZenPacks/zenoss/PostgreSQL/lib/site.py
+ZenPacks/zenoss/PostgreSQL/lib/*.egg
