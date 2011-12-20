@@ -4395,9 +4395,6 @@ postgresFailure
 <property type="string" id="example" mode="w" >
 postgres failure: 'error goes here'
 </property>
-<property visible="True" type="int" id="zEventSeverity" >
-4
-</property>
 </object>
 <!-- ('', 'zport', 'dmd', 'Events', 'Status', 'instances', 'postgresRestored') -->
 <object id='/zport/dmd/Events/Status/instances/postgresRestored' module='Products.ZenEvents.EventClassInst' class='EventClassInst'>
