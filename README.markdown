@@ -163,6 +163,6 @@ remodeled. This occur once every 12 hours.
 
 
 [Zenoss]: <http://www.zenoss.com/>
-[Latest Package for Python 2.7]: <https://github.com/downloads/zenoss/ZenPacks.zenoss.PostgreSQL/ZenPacks.zenoss.PostgreSQL-1.0.2-py2.7.egg>
-[Latest Package for Python 2.6]: <https://github.com/downloads/zenoss/ZenPacks.zenoss.PostgreSQL/ZenPacks.zenoss.PostgreSQL-1.0.2-py2.6.egg>
+[Latest Package for Python 2.7]: <https://github.com/downloads/zenoss/ZenPacks.zenoss.PostgreSQL/ZenPacks.zenoss.PostgreSQL-1.0.3-py2.7.egg>
+[Latest Package for Python 2.6]: <https://github.com/downloads/zenoss/ZenPacks.zenoss.PostgreSQL/ZenPacks.zenoss.PostgreSQL-1.0.3-py2.6.egg>
 [git repository]: <https://github.com/zenoss/ZenPacks.zenoss.PostgreSQL>
