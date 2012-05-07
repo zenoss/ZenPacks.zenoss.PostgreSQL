@@ -18,7 +18,7 @@
 NAME = "ZenPacks.zenoss.PostgreSQL"
 VERSION = "1.0.4"
 AUTHOR = "Zenoss"
-LICENSE = ""
+LICENSE = "GPLv2"
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.zenoss']
 PACKAGES = ['ZenPacks', 'ZenPacks.zenoss', 'ZenPacks.zenoss.PostgreSQL']
 INSTALL_REQUIRES = []
