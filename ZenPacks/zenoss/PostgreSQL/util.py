@@ -15,6 +15,7 @@ import copy
 import sys
 import time
 
+
 def addLocalLibPath():
     """
     Helper to add the ZenPack's lib directory to PYTHONPATH.
@@ -24,8 +25,10 @@ def addLocalLibPath():
 
     site.addsitedir(os.path.join(os.path.dirname(__file__), 'lib'))
 
+
 def datetimeToEpoch(datetime):
     return time.mktime(datetime.timetuple())
+
 
 def datetimeDurationInSeconds(begin, end):
     d = end - begin
@@ -33,8 +36,9 @@ def datetimeDurationInSeconds(begin, end):
     # Taken from the implementation of timedelta.total_seconds in Python 2.7.
     # Added microseconds resolution by introducing a float.
     return (
-        d.microseconds + (d.seconds + d.days * 24 * 3600) * 10**6
-    ) / float(10**6)
+        d.microseconds + (d.seconds + d.days * 24 * 3600) * (10 ** 6)
+        ) / float(10 ** 6)
+
 
 class CollectedOrModeledMixin:
     def getFloatForValue(self, value):
@@ -50,13 +54,14 @@ class CollectedOrModeledMixin:
     def getIntForValue(self, value):
         r = self.getFloatForValue(value)
         return int(round(r)) if r is not None else None
-        
+
     def getStringForValue(self, value, format='{0}'):
         r = self.getFloatForValue(value)
         if r is None:
             return ''
 
         return format.format(r)
+
 
 def CollectedOrModeledProperty(propertyName):
     """
@@ -70,6 +75,7 @@ def CollectedOrModeledProperty(propertyName):
 
 addLocalLibPath()
 from pg8000 import DBAPI
+
 
 class PgHelper(object):
     _host = None
@@ -508,4 +514,3 @@ class PgHelper(object):
             cursor.close()
 
         return tableStats
-
