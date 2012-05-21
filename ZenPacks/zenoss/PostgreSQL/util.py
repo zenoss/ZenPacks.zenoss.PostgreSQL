@@ -93,10 +93,10 @@ class PgHelper(object):
         self._ssl = ssl
         self._connections = {}
 
-    def __del__(self):
-        for conn in self._connections.values():
+    def close(self):
+        for value in self._connections.values():
             try:
-                conn.close()
+                value['connection'].close()
             except Exception:
                 pass
 

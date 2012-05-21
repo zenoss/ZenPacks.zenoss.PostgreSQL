@@ -176,6 +176,8 @@ class PostgresPoller(object):
                 else:
                     self._data[k] = v
 
+            pg.close()
+
         self._cacheData()
         return self._data
 
