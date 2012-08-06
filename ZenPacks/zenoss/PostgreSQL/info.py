@@ -25,15 +25,8 @@ from .util import CollectedOrModeledProperty
 from .Database import Database
 from .Table import Table
 
-class PostgreSQLComponentInfo(ComponentInfo):
-    @property
-    def entity(self):
-        return {
-            'uid': self._object.getPrimaryUrlPath(),
-            'name': self._object.titleOrId(),
-            }
 
-class DatabaseInfo(PostgreSQLComponentInfo):
+class DatabaseInfo(ComponentInfo):
     implements(IDatabaseInfo)
     adapts(Database)
 
@@ -50,7 +43,8 @@ class DatabaseInfo(PostgreSQLComponentInfo):
     def tableCount(self):
         return self._object.tables.countObjects()
 
-class TableInfo(PostgreSQLComponentInfo):
+
+class TableInfo(ComponentInfo):
     implements(ITableInfo)
     adapts(Table)
 
@@ -74,4 +68,3 @@ class TableInfo(PostgreSQLComponentInfo):
     def tableSizeString(self):
         return convToUnits(
             self._object.getIntForValue('tableSize'), 1024, 'B')
-

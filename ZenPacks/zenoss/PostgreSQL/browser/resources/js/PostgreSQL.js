@@ -9,34 +9,35 @@ ZC.registerName('PostgreSQLDatabase', _t('Database'), _t('Databases'));
 ZC.registerName('PostgreSQLTable', _t('Table'), _t('Tables'));
 
 /*
- * Register types so jumpToEntity will work.
- */
-
-// The DeviceClass matcher got too greedy in 3.1.x branch. Throttling it.
-Zenoss.types.TYPES.DeviceClass[0] = new RegExp(
-    "^/zport/dmd/Devices(/(?!devices)[^/*])*/?$");
-
-Zenoss.types.register({
-    'PostgreSQLDatabase':
-        "^/zport/dmd/Devices.*/devices/.*/pgDatabases/[^/]*/?$",
-    'PostgreSQLTable':
-        "^/zport/dmd/Devices.*/devices/.*/pgDatabases/.*/tables/[^/]*/?$"
-});
-
-/*
  * Endpoint-local custom renderers.
  */
-Ext.apply(Zenoss.render, {    
-    entityLinkFromGrid: function(obj) {
-        if (obj && obj.uid && obj.name) {
-            var fmt = Ext.isDefined(Ext.String) ? Ext.String.format : String.format;
-            if ( !this.panel || this.panel.subComponentGridPanel) {
-                return fmt(
-                    '<a href="javascript:Ext.getCmp(\'component_card\').componentgrid.jumpToEntity(\'{0}\', \'{1}\');">{1}</a>',
-                    obj.uid, obj.name);
-            } else {
-                return obj.name;
-            }
+Ext.apply(Zenoss.render, {
+    PostgreSQL_entityLinkFromGrid: function(obj, col, record) {
+        if (!obj)
+            return;
+
+        if (typeof(obj) == 'string')
+            obj = record.data;
+
+        if (!obj.title && obj.name)
+            obj.title = obj.name;
+
+        var isLink = false;
+
+        if (this.refName == 'componentgrid') {
+            // Zenoss >= 4.2 / ExtJS4
+            if (this.subComponentGridPanel || this.componentType != obj.meta_type)
+                isLink = true;
+        } else {
+            // Zenoss < 4.2 / ExtJS3
+            if (!this.panel || this.panel.subComponentGridPanel)
+                isLink = true;
+        }
+
+        if (isLink) {
+            return '<a href="javascript:Ext.getCmp(\'component_card\').componentgrid.jumpToEntity(\''+obj.uid+'\', \''+obj.meta_type+'\');">'+obj.title+'</a>';
+        } else {
+            return obj.title;
         }
     }
 });
@@ -46,21 +47,54 @@ Ext.apply(Zenoss.render, {
  */
 ZC.PostgreSQLComponentGridPanel = Ext.extend(ZC.ComponentGridPanel, {
     subComponentGridPanel: false,
-    
-    jumpToEntity: function(uid, name) {
-        var tree = Ext.getCmp('deviceDetailNav').treepanel,
-            sm = tree.getSelectionModel(),
-            compsNode = tree.getRootNode().findChildBy(function(n){
-                return n.text=='Components';
+
+    jumpToEntity: function(uid, meta_type) {
+        var tree = Ext.getCmp('deviceDetailNav').treepanel;
+        var tree_selection_model = tree.getSelectionModel();
+        var components_node = tree.getRootNode().findChildBy(
+            function(n) {
+                if (n.data) {
+                    // Zenoss >= 4.2 / ExtJS4
+                    return n.data.text == 'Components';
+                }
+
+                // Zenoss < 4.2 / ExtJS3
+                return n.text == 'Components';
             });
-    
-        var compType = Zenoss.types.type(uid);
-        var componentCard = Ext.getCmp('component_card');
-        componentCard.setContext(compsNode.id, compType);
-        componentCard.selectByToken(uid);
-        sm.suspendEvents();
-        compsNode.findChildBy(function(n){return n.id==compType;}).select();
-        sm.resumeEvents();
+
+        // Reset context of component card.
+        var component_card = Ext.getCmp('component_card');
+
+        if (components_node.data) {
+            // Zenoss >= 4.2 / ExtJS4
+            component_card.setContext(components_node.data.id, meta_type);
+        } else {
+            // Zenoss < 4.2 / ExtJS3
+            component_card.setContext(components_node.id, meta_type);
+        }
+
+        // Select chosen row in component grid.
+        component_card.selectByToken(uid);
+
+        // Select chosen component type from tree.
+        var component_type_node = components_node.findChildBy(
+            function(n) {
+                if (n.data) {
+                    // Zenoss >= 4.2 / ExtJS4
+                    return n.data.id == meta_type;
+                }
+
+                // Zenoss < 4.2 / ExtJS3
+                return n.id == meta_type;
+            });
+
+        if (component_type_node.select) {
+            tree_selection_model.suspendEvents();
+            component_type_node.select();
+            tree_selection_model.resumeEvents();
+        } else {
+            tree_selection_model.select([component_type_node], false, true);
+        }
     }
 });
 
@@ -70,17 +104,18 @@ ZC.PostgreSQLComponentGridPanel = Ext.extend(ZC.ComponentGridPanel, {
 ZC.PostgreSQLDatabasePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
     constructor: function(config) {
         config = Ext.applyIf(config||{}, {
-            autoExpandColumn: 'entity',
+            autoExpandColumn: 'name',
             componentType: 'PostgreSQLDatabase',
             fields: [
                 {name: 'uid'},
                 {name: 'name'},
+                {name: 'meta_type'},
                 {name: 'severity'},
-                {name: 'entity'},
                 {name: 'dbSize'},
                 {name: 'tableCount'},
                 {name: 'monitor'},
-                {name: 'monitored'}
+                {name: 'monitored'},
+                {name: 'locking'}
             ],
             columns: [{
                 id: 'severity',
@@ -90,10 +125,10 @@ ZC.PostgreSQLDatabasePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
                 sortable: true,
                 width: 50
             },{
-                id: 'entity',
-                dataIndex: 'entity',
+                id: 'name',
+                dataIndex: 'name',
                 header: _t('Name'),
-                renderer: Zenoss.render.entityLinkFromGrid,
+                renderer: Zenoss.render.PostgreSQL_entityLinkFromGrid,
                 panel: this
             },{
                 id: 'dbSize',
@@ -115,6 +150,12 @@ ZC.PostgreSQLDatabasePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
                 renderer: Zenoss.render.checkbox,
                 sortable: true,
                 width: 65
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
+                width: 65
             }]
         });
         ZC.PostgreSQLDatabasePanel.superclass.constructor.call(this, config);
@@ -129,19 +170,20 @@ Ext.reg('PostgreSQLDatabasePanel', ZC.PostgreSQLDatabasePanel);
 ZC.PostgreSQLTablePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
     constructor: function(config) {
         config = Ext.applyIf(config||{}, {
-            autoExpandColumn: 'entity',
+            autoExpandColumn: 'name',
             componentType: 'PostgreSQLTable',
             fields: [
                 {name: 'uid'},
                 {name: 'name'},
+                {name: 'meta_type'},
                 {name: 'severity'},
-                {name: 'entity'},
                 {name: 'database'},
                 {name: 'tableSchema'},
                 {name: 'tableSize'},
                 {name: 'totalTableSize'},
                 {name: 'monitor'},
-                {name: 'monitored'}
+                {name: 'monitored'},
+                {name: 'locking'}
             ],
             columns: [{
                 id: 'severity',
@@ -151,16 +193,16 @@ ZC.PostgreSQLTablePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
                 sortable: true,
                 width: 50
             },{
-                id: 'entity',
-                dataIndex: 'entity',
+                id: 'name',
+                dataIndex: 'name',
                 header: _t('Name'),
-                renderer: Zenoss.render.entityLinkFromGrid,
+                renderer: Zenoss.render.PostgreSQL_entityLinkFromGrid,
                 panel: this
             },{
                 id: 'database',
                 dataIndex: 'database',
                 header: _t('Database'),
-                renderer: Zenoss.render.entityLinkFromGrid,
+                renderer: Zenoss.render.PostgreSQL_entityLinkFromGrid,
                 width: 80
             },{
                 id: 'tableSchema',
@@ -188,6 +230,12 @@ ZC.PostgreSQLTablePanel = Ext.extend(ZC.PostgreSQLComponentGridPanel, {
                 header: _t('Monitored'),
                 renderer: Zenoss.render.checkbox,
                 sortable: true,
+                width: 65
+            },{
+                id: 'locking',
+                dataIndex: 'locking',
+                header: _t('Locking'),
+                renderer: Zenoss.render.locking_icons,
                 width: 65
             }]
         });
