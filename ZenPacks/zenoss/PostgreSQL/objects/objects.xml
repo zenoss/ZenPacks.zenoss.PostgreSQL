@@ -459,6 +459,9 @@ True
 </property>
 <tomanycont id='graphPoints'>
 <object id='Backends' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -574,6 +577,9 @@ AVERAGE
 </property>
 </object>
 <object id='Total' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property type="string" id="color" mode="w" >
 000000
 </property>
@@ -837,6 +843,9 @@ AVERAGE
 </property>
 </object>
 <object id='Txn   (max)' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -952,6 +961,9 @@ AVERAGE
 </property>
 </object>
 <object id='Txn Rollbacks' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -1004,8 +1016,14 @@ False
 <property type="boolean" id="hasSummary" mode="w" >
 True
 </property>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <tomanycont id='graphPoints'>
 <object id='Connection' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -1179,6 +1197,9 @@ AVERAGE
 </property>
 </object>
 <object id='Total' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property type="string" id="color" mode="w" >
 000000
 </property>
@@ -1268,6 +1289,9 @@ True
 </property>
 <tomanycont id='graphPoints'>
 <object id='Size' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -1354,6 +1378,9 @@ AVERAGE
 </property>
 </object>
 <object id='Sequential' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -1527,6 +1554,9 @@ AVERAGE
 </property>
 </object>
 <object id='Seq Read' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -1642,6 +1672,9 @@ AVERAGE
 </property>
 </object>
 <object id='Live' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -1699,6 +1732,9 @@ True
 </property>
 <tomanycont id='graphPoints'>
 <object id='Commits' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -1872,6 +1908,9 @@ AVERAGE
 </property>
 </object>
 <object id='Returned' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -2444,6 +2483,9 @@ AVERAGE
 </property>
 </object>
 <object id='Total' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property type="string" id="color" mode="w" >
 000000
 </property>
@@ -2504,6 +2546,9 @@ True
 </property>
 <tomanycont id='graphPoints'>
 <object id='Backends' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -2590,6 +2635,9 @@ AVERAGE
 </property>
 </object>
 <object id='Txn Rollbacks' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -2734,6 +2782,9 @@ AVERAGE
 </property>
 </object>
 <object id='Total' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property type="string" id="color" mode="w" >
 000000
 </property>
@@ -2823,6 +2874,9 @@ True
 </property>
 <tomanycont id='graphPoints'>
 <object id='Size' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -2880,6 +2934,9 @@ True
 </property>
 <tomanycont id='graphPoints'>
 <object id='Commits' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -3053,6 +3110,9 @@ AVERAGE
 </property>
 </object>
 <object id='Returned' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -3342,6 +3402,9 @@ AVERAGE
 </property>
 </object>
 <object id='Txn   (max)' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -3423,8 +3486,14 @@ False
 <property type="boolean" id="hasSummary" mode="w" >
 True
 </property>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <tomanycont id='graphPoints'>
 <object id='Connection' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -3540,6 +3609,9 @@ AVERAGE
 </property>
 </object>
 <object id='Sequential' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -3713,6 +3785,9 @@ AVERAGE
 </property>
 </object>
 <object id='Seq Read' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -3828,6 +3903,9 @@ AVERAGE
 </property>
 </object>
 <object id='Live' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>
@@ -4007,6 +4085,14 @@ GAUGE
 True
 </property>
 </object>
+<object id='totalSize' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+</object>
 </tomanycont>
 </object>
 </tomanycont>
@@ -4035,6 +4121,9 @@ False
 </property>
 <property type="boolean" id="hasSummary" mode="w" >
 True
+</property>
+<property type="long" id="sequence" mode="w" >
+0
 </property>
 <tomanycont id='graphPoints'>
 <object id='Index' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
@@ -4067,6 +4156,9 @@ AVERAGE
 </property>
 </object>
 <object id='Sequential' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -4240,6 +4332,9 @@ AVERAGE
 </property>
 </object>
 <object id='Seq Read' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 AREA
 </property>
@@ -4355,6 +4450,9 @@ AVERAGE
 </property>
 </object>
 <object id='Live' module='Products.ZenModel.DataPointGraphPoint' class='DataPointGraphPoint'>
+<property type="long" id="sequence" mode="w" >
+0
+</property>
 <property select_variable="lineTypes" type="selection" id="lineType" mode="w" >
 LINE
 </property>

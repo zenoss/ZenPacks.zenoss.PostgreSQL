@@ -1,7 +1,7 @@
 ###########################################################################
 #
 # This program is part of Zenoss Core, an open source monitoring platform.
-# Copyright (C) 2011, Zenoss Inc.
+# Copyright (C) 2011, 2013, Zenoss Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 2 or (at your
@@ -27,15 +27,15 @@ class Table(DeviceComponent, ManagedEntity, CollectedOrModeledMixin):
 
     # We do more frequent collection of these values, but it's good to have an
     # immediate value to use as soon as the device is added.
-    modeled_tableSize = None
-    modeled_totalTableSize = None
+    modeled_size = None
+    modeled_totalSize = None
 
     _properties = ManagedEntity._properties + (
         {'id': 'tableName', 'type': 'string', 'mode': ''},
         {'id': 'tableOid', 'type': 'int', 'mode': ''},
         {'id': 'tableSchema', 'type': 'string', 'mode': ''},
-        {'id': 'modeled_tableSize', 'type': 'int', 'mode': ''},
-        {'id': 'modeled_totalTableSize', 'type': 'int', 'mode': ''},
+        {'id': 'modeled_size', 'type': 'int', 'mode': ''},
+        {'id': 'modeled_totalSize', 'type': 'int', 'mode': ''},
     )
 
     _relations = ManagedEntity._relations + (

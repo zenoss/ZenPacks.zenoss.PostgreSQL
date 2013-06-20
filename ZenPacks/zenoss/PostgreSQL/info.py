@@ -32,12 +32,12 @@ class DatabaseInfo(ComponentInfo):
 
     dbName = ProxyProperty('dbName')
     dbOid = ProxyProperty('dbOid')
-    dbSize = CollectedOrModeledProperty('dbSize')
+    dbSize = CollectedOrModeledProperty('size')
 
     @property
     def dbSizeString(self):
         return convToUnits(
-            self._object.getIntForValue('dbSize'), 1024, 'B')
+            self._object.getIntForValue('size'), 1024, 'B')
 
     @property
     def tableCount(self):
@@ -51,13 +51,13 @@ class TableInfo(ComponentInfo):
     tableName = ProxyProperty('tableName')
     tableOid = ProxyProperty('tableOid')
     tableSchema = ProxyProperty('tableSchema')
-    tableSize = CollectedOrModeledProperty('tableSize')
-    totalTableSize = CollectedOrModeledProperty('totalTableSize')
+    tableSize = CollectedOrModeledProperty('size')
+    totalTableSize = CollectedOrModeledProperty('totalSize')
 
     @property
     def totalTableSizeString(self):
         return convToUnits(
-            self._object.getIntForValue('totalTableSize'), 1024, 'B')
+            self._object.getIntForValue('totalSize'), 1024, 'B')
 
     @property
     @info
@@ -67,4 +67,4 @@ class TableInfo(ComponentInfo):
     @property
     def tableSizeString(self):
         return convToUnits(
-            self._object.getIntForValue('tableSize'), 1024, 'B')
+            self._object.getIntForValue('size'), 1024, 'B')

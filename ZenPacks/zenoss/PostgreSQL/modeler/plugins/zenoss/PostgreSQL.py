@@ -1,7 +1,7 @@
 ###########################################################################
 #
 # This program is part of Zenoss Core, an open source monitoring platform.
-# Copyright (C) 2011, Zenoss Inc.
+# Copyright (C) 2011, 2013, Zenoss Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 2 or (at your
@@ -76,7 +76,7 @@ class PostgreSQL(PythonPlugin):
                 title=dbName,
                 dbName=dbName,
                 dbOid=dbDetail['oid'],
-                modeled_dbSize=dbDetail['size'],
+                modeled_size=dbDetail['size'],
             )))
 
         maps.append(RelationshipMap(
@@ -96,6 +96,8 @@ class PostgreSQL(PythonPlugin):
                     tableName=tableName,
                     tableOid=tableDetail['oid'],
                     tableSchema=tableDetail['schema'],
+                    modeled_size=tableDetail['size'],
+                    modeled_totalSize=tableDetail['totalSize'],
                 )))
 
             maps.append(RelationshipMap(
