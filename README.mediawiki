@@ -17,32 +17,32 @@ attributes and collections will be updated on Zenoss' normal remodeling
 interval which defaults to every 12 hours.
 
 ;Databases
-: Attributes: Name, OID, Size, Table Count
-: Collections: Tables
+* Attributes: Name, OID, Size, Table Count
+* Collections: Tables
 
 ;Tables
-: Attributes: Name, OID, Schema, Size, Size, Database
+* Attributes: Name, OID, Schema, Size, Size, Database
 
 === Monitoring ===
 
 The following metrics will be collected every 5 minutes by default.
 
 ;Server
-: Metrics: Summaries of all databases and tables.
+* Metrics: Summaries of all databases and tables.
 
 ;Databases
-: Metrics: Size, Backends, Summaries of all tables.
-: Latency Metrics: Connection, SELECT 1
-: Connection Metrics: Total, Active, Idle
-: Duration Metrics: Active Transactions (min/avg/max), Idle Transactions (min/avg/max), Queries (min/avg/max)
-: Efficiency Metrics: Transaction Rollback Percentage, Tuple Fetch Percentage
-: Transaction Rate Metrics: Commits/sec, Rollbacks/sec
-: Tuple Rate Metrics: Returned/sec, Fetched/sec, Inserted/sec, Updated/sec, Deleted/sec
-: Lock Metrics: Total, Granted, Waiting, Exclusive, AccessExclusive
+* Metrics: Size, Backends, Summaries of all tables.
+* Latency Metrics: Connection, SELECT 1
+* Connection Metrics: Total, Active, Idle
+* Duration Metrics: Active Transactions (min/avg/max), Idle Transactions (min/avg/max), Queries (min/avg/max)
+* Efficiency Metrics: Transaction Rollback Percentage, Tuple Fetch Percentage
+* Transaction Rate Metrics: Commits/sec, Rollbacks/sec
+* Tuple Rate Metrics: Returned/sec, Fetched/sec, Inserted/sec, Updated/sec, Deleted/sec
+* Lock Metrics: Total, Granted, Waiting, Exclusive, AccessExclusive
 
 ;Tables
-: Scan Rate Metrics: Sequential/sec, Indexed/sec
-: Tuple Rate Metrics: Sequentially Read/sec, Index Fetched/sec, Inserted/sec, Updated/sec, Hot Updated/sec, Deleted/sec
+* Scan Rate Metrics: Sequential/sec, Indexed/sec
+* Tuple Rate Metrics: Sequentially Read/sec, Index Fetched/sec, Inserted/sec, Updated/sec, Hot Updated/sec, Deleted/sec
 * Tuple Metrics: Live, Dead
 
 == Usage ==
