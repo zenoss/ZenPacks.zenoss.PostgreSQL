@@ -4007,6 +4007,14 @@ GAUGE
 True
 </property>
 </object>
+<object id='totalSize' module='Products.ZenModel.RRDDataPoint' class='RRDDataPoint'>
+<property select_variable="rrdtypes" type="selection" id="rrdtype" mode="w" >
+GAUGE
+</property>
+<property type="boolean" id="isrow" mode="w" >
+True
+</property>
+</object>
 </tomanycont>
 </object>
 </tomanycont>
