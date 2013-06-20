@@ -1,7 +1,7 @@
 ###########################################################################
 #
 # This program is part of Zenoss Core, an open source monitoring platform.
-# Copyright (C) 2011, Zenoss Inc.
+# Copyright (C) 2011, 2013, Zenoss Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 2 or (at your
@@ -26,12 +26,12 @@ class Database(DeviceComponent, ManagedEntity, CollectedOrModeledMixin):
 
     # We do more frequent collection of these values, but it's good to have an
     # immediate value to use as soon as the device is added.
-    modeled_dbSize = None
+    modeled_size = None
 
     _properties = ManagedEntity._properties + (
         {'id': 'dbName', 'type': 'string', 'mode': ''},
         {'id': 'dbOid', 'type': 'int', 'mode': ''},
-        {'id': 'modeled_dbSize', 'type':'int', 'mode': ''},
+        {'id': 'modeled_size', 'type': 'int', 'mode': ''},
     )
 
     _relations = ManagedEntity._relations + (

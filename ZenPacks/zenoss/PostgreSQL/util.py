@@ -12,6 +12,7 @@
 ###########################################################################
 
 import copy
+import math
 import sys
 import time
 
@@ -46,7 +47,7 @@ class CollectedOrModeledMixin:
         r = self.cacheRRDValue(value, None)
 
         # Fall back to a modeled value if it exists.
-        if r is None:
+        if r is None or math.isnan(r):
             r = getattr(self, 'modeled_{0}'.format(value), None)
 
         return float(r) if r is not None else None

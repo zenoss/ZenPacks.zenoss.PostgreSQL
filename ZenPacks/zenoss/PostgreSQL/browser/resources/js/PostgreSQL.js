@@ -5,8 +5,8 @@ var ZC = Ext.ns('Zenoss.component');
 /*
  * Friendly names for the components.
  */
-ZC.registerName('PostgreSQLDatabase', _t('Database'), _t('Databases'));
-ZC.registerName('PostgreSQLTable', _t('Table'), _t('Tables'));
+ZC.registerName('PostgreSQLDatabase', _t('PostgreSQL Database'), _t('PostgreSQL Databases'));
+ZC.registerName('PostgreSQLTable', _t('PostgreSQL Table'), _t('PostgreSQL Tables'));
 
 /*
  * Endpoint-local custom renderers.
