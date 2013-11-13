@@ -22,6 +22,7 @@ from ....util import PgHelper
 
 class PostgreSQL(PythonPlugin):
     deviceProperties = PythonPlugin.deviceProperties + (
+        'zPostgreSQLPostgresDatabase',
         'zPostgreSQLPort',
         'zPostgreSQLUsername',
         'zPostgreSQLPassword',
@@ -30,6 +31,7 @@ class PostgreSQL(PythonPlugin):
 
     def collect(self, device, unused):
         pg = PgHelper(
+            device.zPostgreSQLPostgresDatabase,
             device.manageIp,
             device.zPostgreSQLPort,
             device.zPostgreSQLUsername,
@@ -46,7 +48,7 @@ class PostgreSQL(PythonPlugin):
             return None
 
         for dbName in results['databases'].keys():
-            if dbName == 'postgres':
+            if dbName == device.zPostgreSQLPostgresDatabase:
                 continue
 
             results['databases'][dbName]['tables'] = {}
