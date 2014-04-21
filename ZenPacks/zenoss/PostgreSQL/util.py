@@ -429,7 +429,7 @@ class PgHelper(object):
             cursor.execute(
                 "SELECT d.datname, l.mode, l.granted"
                 "  FROM pg_database AS d"
-                "  LEFT JOIN pg_locks AS l ON l.database = d.oid"
+                "  INNER JOIN pg_locks AS l ON l.database = d.oid"
                 " WHERE NOT d.datistemplate AND d.datallowconn"
             )
 
