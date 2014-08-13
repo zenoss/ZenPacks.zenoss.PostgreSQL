@@ -35,5 +35,5 @@ clean:
 	rm -rf build dist *.egg-info
 	find . -name '*.pyc' -exec rm {} \;
 	cd $(PG8000_DIR) ; rm -rf build dist *.egg-info
-	cd $(LIB_DIR) ; rm -rf *.egg-info
+	cd $(LIB_DIR) ; rm -rf *.egg-info pg8000
 
