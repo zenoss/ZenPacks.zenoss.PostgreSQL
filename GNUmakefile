@@ -25,8 +25,6 @@ egg:
 	python setup.py bdist_egg
 
 build:
-	git submodule init ; \
-	git submodule update ; \
 	cd $(PG8000_DIR) ; \
 		PYTHONPATH="$(PYTHONPATH):$(LIB_DIR)" \
 		$(PYTHON) setup.py install \
@@ -35,6 +33,7 @@ build:
 
 clean:
 	rm -rf build dist *.egg-info
-	find . -name '*.pyc' | xargs rm
+	find . -name '*.pyc' -exec rm {} \;
 	cd $(PG8000_DIR) ; rm -rf build dist *.egg-info
+	cd $(LIB_DIR) ; rm -rf *.egg-info
 
