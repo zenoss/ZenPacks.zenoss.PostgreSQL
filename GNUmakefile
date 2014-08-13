@@ -11,7 +11,7 @@
 #
 ###########################################################################
 
-PYTHON=python
+PYTHON = $(shell which python)
 HERE=$(PWD)
 SRC_DIR=$(HERE)/src
 PG8000_DIR=$(SRC_DIR)/pg8000
