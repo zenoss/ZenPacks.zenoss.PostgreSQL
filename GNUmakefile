@@ -12,9 +12,10 @@
 ###########################################################################
 
 PYTHON=python
-SRC_DIR=$(PWD)/src
+HERE=$(PWD)
+SRC_DIR=$(HERE)/src
 PG8000_DIR=$(SRC_DIR)/pg8000
-ZP_DIR=$(PWD)/ZenPacks/zenoss/PostgreSQL
+ZP_DIR=$(HERE)/ZenPacks/zenoss/PostgreSQL
 BIN_DIR=$(ZP_DIR)/bin
 LIB_DIR=$(ZP_DIR)/lib
 
