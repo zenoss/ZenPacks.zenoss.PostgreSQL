@@ -222,10 +222,13 @@ class PgHelper(object):
 
         try:
             cursor.execute(
-                "SELECT relname, relid, schemaname,"
-                "       pg_relation_size(relid) AS size,"
-                "       pg_total_relation_size(relid) AS total_size"
-                "  FROM pg_stat_user_tables"
+                "SELECT a.relname, a.relid, a.schemaname, b.size, a.total_size from"
+                " ( select relname, "
+                "   relid, schemaname,"
+                "   pg_total_relation_size(relid) total_size"
+                " FROM pg_stat_user_tables) a, "
+                " (select relname, relpages * (current_setting('block_size'))::numeric size FROM pg_class) b "
+                " where a.relname=b.relname "
             )
 
             for row in cursor.fetchall():
@@ -475,16 +478,36 @@ class PgHelper(object):
 
         try:
             cursor.execute(
-                "SELECT relname,"
-                "       pg_relation_size(relid),"
-                "       pg_total_relation_size(relid),"
-                "       seq_scan, seq_tup_read,"
-                "       idx_scan, idx_tup_fetch,"
-                "       n_tup_ins, n_tup_upd, n_tup_del,"
-                "       n_tup_hot_upd, n_live_tup, n_dead_tup,"
-                "       last_vacuum, last_autovacuum,"
-                "       last_analyze, last_autoanalyze"
-                "  FROM pg_stat_user_tables"
+                "SELECT "
+                "   a.relname,"
+                "   b.pg_relation_size,"
+                "   a.pg_total_relation_size,"
+                "   a.seq_scan,"
+                "   a.seq_tup_read,"
+                "   a.idx_scan,"
+                "   a.idx_tup_fetch,"
+                "   a.n_tup_ins,"
+                "   a.n_tup_upd,"
+                "   a.n_tup_del,"
+                "   a.n_tup_hot_upd,"
+                "   a.n_live_tup,"
+                "   a.n_dead_tup,"
+                "   a.last_vacuum,"
+                "   a.last_autovacuum,"
+                "   a.last_analyze,"
+                "   a.last_autoanalyze"
+                " FROM"
+                " (SELECT relname,"
+                "        pg_total_relation_size(relid),"
+                "        seq_scan, seq_tup_read,"
+                "        idx_scan, idx_tup_fetch,"
+                "        n_tup_ins, n_tup_upd, n_tup_del,"
+                "        n_tup_hot_upd, n_live_tup, n_dead_tup,"
+                "        last_vacuum, last_autovacuum,"
+                "        last_analyze, last_autoanalyze"
+                "  from pg_stat_user_tables) a,"
+                " (select relname, relpages * (current_setting('block_size'))::numeric pg_relation_size FROM pg_class) b"
+                " where a.relname=b.relname;"
             )
 
             for row in cursor.fetchall():
