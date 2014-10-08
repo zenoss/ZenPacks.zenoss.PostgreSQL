@@ -228,7 +228,7 @@ class PgHelper(object):
                 "   pg_total_relation_size(relid) total_size"
                 " FROM pg_stat_user_tables) a, "
                 " (select relname, relpages * (current_setting('block_size'))::numeric size FROM pg_class) b "
-                " where a.relname=b.relname "
+                " where a.relname=b.relname"
             )
 
             for row in cursor.fetchall():
@@ -507,7 +507,7 @@ class PgHelper(object):
                 "        last_analyze, last_autoanalyze"
                 "  from pg_stat_user_tables) a,"
                 " (select relname, relpages * (current_setting('block_size'))::numeric pg_relation_size FROM pg_class) b"
-                " where a.relname=b.relname;"
+                " where a.relname=b.relname"
             )
 
             for row in cursor.fetchall():
