@@ -14,14 +14,25 @@
 
 import copy
 import json
-import md5
-import os
 import sys
-import tempfile
-import time
+import decimal
 
 from util import PgHelper
 
+
+def clean_dict_data(d):
+    fixed = {}
+    for k,v in d.iteritems():
+        if isinstance(v, decimal.Decimal):
+            # convert decimal to string
+            fixed.update({k: str(v)})
+        elif isinstance(v, dict):
+            # recurse
+            fixed.update({k: clean_dict_data(v)})
+        else:
+            # no conversion needed, replace
+            fixed.update({k: v})
+    return fixed
 
 class PostgresPoller(object):
     _host = None
@@ -37,41 +48,7 @@ class PostgresPoller(object):
         self._password = password
         self._ssl = ssl
 
-    def _getTempFilename(self):
-        target_hash = md5.md5('{0}+{1}+{2}'.format(
-            self._host, self._port, self._username)).hexdigest()
-
-        return os.path.join(
-            tempfile.gettempdir(),
-            '.zenoss_postgres_{0}'.format(target_hash))
-
-    def _cacheData(self):
-        tmpfile = self._getTempFilename()
-        tmp = open(tmpfile, 'w')
-        json.dump(self._data, tmp)
-        tmp.close()
-
-    def _loadData(self):
-        if self._data:
-            return
-
-        tmpfile = self._getTempFilename()
-        if not os.path.isfile(tmpfile):
-            return None
-
-        # Make sure temporary data isn't too stale.
-        if os.stat(tmpfile).st_mtime < (time.time() - 50):
-            os.unlink(tmpfile)
-            return None
-
-        tmp = open(tmpfile, 'r')
-        self._data = json.load(tmp)
-        tmp.close()
-
-        self._cacheData()
-
     def getData(self):
-        self._loadData()
 
         if not self._data:
             self._data = dict(events=[])
@@ -138,7 +115,7 @@ class PostgresPoller(object):
                     if statName in dbStats and dbStats[statName] is not None:
                         if statName in databaseSummaries:
                             databaseSummaries[statName] = (
-                                (databaseSummaries[statName] + \
+                                (databaseSummaries[statName] +
                                  dbStats[statName]) / 2.0)
                         else:
                             databaseSummaries[statName] = \
@@ -148,7 +125,7 @@ class PostgresPoller(object):
                 for tableName, tableStats in tables.items():
                     for statName in tableSummaries.keys():
                         if statName in tableStats \
-                            and tableStats[statName] is not None:
+                                and tableStats[statName] is not None:
                             tableSummaries[statName] += tableStats[statName]
                             local_dbTableSummaries[statName] += \
                                 tableStats[statName]
@@ -178,7 +155,6 @@ class PostgresPoller(object):
 
             pg.close()
 
-        self._cacheData()
         return self._data
 
     def printJSON(self):
@@ -210,8 +186,7 @@ class PostgresPoller(object):
                 )]
             )
 
-        print json.dumps(data)
-
+        print json.dumps(clean_dict_data(data))
 
 if __name__ == '__main__':
     usage = "Usage: {0} <host> <port> <username> <password <ssl>"
