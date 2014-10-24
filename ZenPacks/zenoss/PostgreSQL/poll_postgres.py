@@ -29,6 +29,9 @@ def clean_dict_data(d):
         elif isinstance(v, dict):
             # recurse
             fixed.update({k: clean_dict_data(v)})
+        # If Null data exists, just skip it, rather than bias datapoints.
+        elif v is None:
+            continue
         else:
             # no conversion needed, replace
             fixed.update({k: v})
