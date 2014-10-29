@@ -45,7 +45,7 @@ The following metrics will be collected every 5 minutes by default.
 * Tuple Rate Metrics: Sequentially Read/sec, Index Fetched/sec, Inserted/sec, Updated/sec, Hot Updated/sec, Deleted/sec
 * Tuple Metrics: Live, Dead
 
-== Usage ==
+== Usage, Security and Setup ==
 
 Once the PostgreSQL ZenPack is installed you will have the following new
 configuration properties which should be set either for device classes or
@@ -54,7 +54,7 @@ individual devices.
 ;Configuration Properties
 * ''zPostgreSQLPort'' - Port where PostgreSQL is listening. Default: 5432
 * ''zPostgreSQLUseSSL'' - Whether to use SSL or not. Default: False
-* ''zPostgreSQLUsername'' - Must be a superuser. Default: postgres
+* ''zPostgreSQLUsername'' - Must have read access to databases. Default: postgres
 * ''zPostgreSQLPassword'' - Password for user. No default.
 
 In addition to setting these properties you must add the ''zenoss.PostgreSQL''
@@ -62,6 +62,46 @@ modeler plugin to a device class or individual device. This modeler plugin
 will discover all databases and tables using the connectivity information
 provided through the above settings. Each database and table will
 automatically be monitored.
+
+=== Security Considerations ===
+
+In order to increase security, we recommend setting up a dedicated user account
+to perform all queries.
+
+In addition, to avoid hung database processes, setting a *statement_timeout* to
+15 seconds for the dedicated Zenoss user. This causes all commands that do not
+finish within 15 seconds to timeout and ensures PostgreSQL will not run out of
+connection resources due to Zenoss activity.
+
+In the following example we assume the dedicated user is named '''zenoss'''.
+We further will use commands that are exclusive to the 9.X version of
+PostgreSQL. Analagous commands can be found for older versions.
+
+==== Dedicated User Setup ====
+
+* From the PostgreSQL superuser account, first create a dedicated user named "zenoss" via commandline tool:
+
+   createuser -S -D -R -e zenoss
+
+* Next issue the following SQL command as the database superuser:
+
+<syntaxhighlight lang="sql">
+-- Grant SELECT on all existing tables in SCHEMA public:
+-- Note: This only affects tables that have already been created.
+
+   GRANT SELECT ON ALL TABLES IN SCHEMA public TO zenoss;
+
+-- Automatically have default roles assigned to new objects in future:
+
+   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO zenoss;
+
+-- Finally set the connection_timeout for the user.
+
+   ALTER ROLE zenoss SET statement_timeout=15000;
+</syntaxhighlight>
+
+You should now be able to issue any of the commands in the following section
+using this dedicated PostgreSQL user.
 
 === PostgreSQL Server Impact ===
 

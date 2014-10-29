@@ -478,7 +478,6 @@ class PgHelper(object):
         tableStats = {}
 
         try:
-            cursor.execute("SET statement_timeout TO 15")
             cursor.execute(
                 "SELECT "
                 "   a.relname,"
@@ -537,7 +536,6 @@ class PgHelper(object):
                     lastAutoAnalyze=row[16],
                 )
         finally:
-            cursor.execute("RESET statement_timeout;")
             cursor.close()
 
         return tableStats
