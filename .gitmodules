@@ -1,3 +1,0 @@
-[submodule "src/pg8000"]
-	path = src/pg8000
-	url = https://github.com/mfenniak/pg8000.git
