@@ -434,6 +434,7 @@ class PgHelper(object):
                 "  FROM pg_database AS d"
                 "  INNER JOIN pg_locks AS l ON l.database = d.oid"
                 " WHERE NOT d.datistemplate AND d.datallowconn"
+                " AND pid <> pg_backend_pid()"
             )
 
             locks.update(locksTemplate)
