@@ -122,3 +122,13 @@ SELECT relname, relid, schemaname,
        pg_total_relation_size(relid) AS total_size
   FROM pg_stat_user_tables
 </syntaxhighlight>
+
+== Changes ==
+
+;1.0.9
+* Filter PIDs for lock query (ZEN-15165)
+
+;1.0.8
+* Handle null data by skipping it (ZEN-14276)
+* Update pg8000 lib to 1.9.14 (ZEN-12752)
+
