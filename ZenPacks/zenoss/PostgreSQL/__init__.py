@@ -24,6 +24,7 @@ from Products.ZenUtils.Utils import monkeypatch, zenPath
 
 class ZenPack(ZenPackBase):
     packZProperties = [
+        ('zPostgreSQLPostgresDatabase', 'postgres', 'string'),
         ('zPostgreSQLPort', 5432, 'int'),
         ('zPostgreSQLUsername', 'postgres', 'string'),
         ('zPostgreSQLPassword', '', 'password'),

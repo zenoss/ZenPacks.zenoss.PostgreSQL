@@ -79,6 +79,7 @@ from pg8000 import DBAPI
 
 
 class PgHelper(object):
+    _postgres_database = None
     _host = None
     _port = None
     _username = None
@@ -86,7 +87,8 @@ class PgHelper(object):
     _ssl = None
     _connections = None
 
-    def __init__(self, host, port, username, password, ssl):
+    def __init__(self, postgres_database, host, port, username, password, ssl):
+        self._postgres_database = postgres_database
         self._host = host
         self._port = port
         self._username = username
@@ -133,7 +135,7 @@ class PgHelper(object):
         return self._connections[db]['connection']
 
     def getDatabases(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._postgres_database).cursor()
 
         databases = {}
 
@@ -156,7 +158,7 @@ class PgHelper(object):
         return databases
 
     def getDatabaseStats(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._postgres_database).cursor()
 
         databaseStats = {}
 
@@ -244,7 +246,7 @@ class PgHelper(object):
         return tables
 
     def getConnectionStats(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._postgres_database).cursor()
 
         connectionStats = dict(databases={})
 
@@ -399,7 +401,7 @@ class PgHelper(object):
         return connectionStats
 
     def getLocks(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._postgres_database).cursor()
 
         locksTemplate = dict(
             locksTotal=0,

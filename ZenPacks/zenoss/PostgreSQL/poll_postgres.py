@@ -38,13 +38,15 @@ def clean_dict_data(d):
     return fixed
 
 class PostgresPoller(object):
+    _postgres_database = None
     _host = None
     _port = None
     _username = None
     _password = None
     _data = None
 
-    def __init__(self, host, port, username, password, ssl):
+    def __init__(self, postgres_database, host, port, username, password, ssl):
+        self._postgres_database = postgres_database
         self._host = host
         self._port = port
         self._username = username
@@ -57,6 +59,7 @@ class PostgresPoller(object):
             self._data = dict(events=[])
 
             pg = PgHelper(
+                self._postgres_database,
                 self._host,
                 self._port,
                 self._username,
@@ -64,8 +67,8 @@ class PostgresPoller(object):
                 self._ssl)
 
             self._data.update(
-                connectionLatency=pg.getConnectionLatencyForDatabase('postgres'),
-                queryLatency=pg.getQueryLatencyForDatabase('postgres'),
+                connectionLatency=pg.getConnectionLatencyForDatabase(self._postgres_database),
+                queryLatency=pg.getQueryLatencyForDatabase(self._postgres_database),
                 )
 
             # Calculated server-level stats.
@@ -196,7 +199,7 @@ if __name__ == '__main__':
 
     host = port = username = password = ssl = None
     try:
-        host, port, username, password, ssl = sys.argv[1:6]
+        postgres_database, host, port, username, password, ssl = sys.argv[1:7]
     except ValueError:
         print >> sys.stderr, usage.format(sys.argv[0])
         sys.exit(1)
@@ -204,5 +207,5 @@ if __name__ == '__main__':
     if ssl == 'False':
         ssl = False
 
-    poller = PostgresPoller(host, port, username, password, ssl)
+    poller = PostgresPoller(postgres_database, host, port, username, password, ssl)
     poller.printJSON()
