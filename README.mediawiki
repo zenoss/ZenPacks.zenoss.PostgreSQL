@@ -127,6 +127,7 @@ SELECT relname, relid, schemaname,
 
 ;1.0.9
 * Filter PIDs for lock query (ZEN-15165)
+* Guard against locks in PGSQL poller (ZPS-312)
 
 ;1.0.8
 * Handle null data by skipping it (ZEN-14276)
