@@ -100,7 +100,14 @@ class PostgresPoller(object):
 
             dbTableSummaries = copy.copy(tableSummaries)
 
-            databases = pg.getDatabaseStats()
+            # Catch exception in DB query to close open pg connection
+            try:
+                databases = pg.getDatabaseStats()
+            except Exception as ex:
+                print 'Exception in getDatabaseStats(): [{}]'.format(ex)
+                pg.close()
+                return self._data
+
             for dbName, dbStats in databases.items():
                 databases[dbName].update(
                     connectionLatency=pg.getConnectionLatencyForDatabase(dbName),
@@ -124,7 +131,14 @@ class PostgresPoller(object):
                             databaseSummaries[statName] = \
                                 dbStats[statName]
 
-                tables = pg.getTableStatsForDatabase(dbName)
+                # Catch exception in table query to close open pg connection
+                try:
+                    tables = pg.getTableStatsForDatabase(dbName)
+                except Exception as ex:
+                    print 'Exception in getTableStatsForDatabase(): [{}]'.format(ex)
+                    pg.close()
+                    return self._data
+
                 for tableName, tableStats in tables.items():
                     for statName in tableSummaries.keys():
                         if statName in tableStats \
