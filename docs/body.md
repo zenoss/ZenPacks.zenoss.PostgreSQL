@@ -1,75 +1,101 @@
+Background
+-------------
+
 This ZenPack makes it possible to monitor the performance of a PostgreSQL
 database server, the individual databases, and the tables within those
 databases.
 
-== Features ==
+Features
+----------------
 
 The features added by this ZenPack can be summarized as follows. They are each
 detailed further below.
 
-* Discovery of PostgreSQL components.
-* Monitoring of PostgreSQL metrics.
+- Discovery of PostgreSQL components.
+- Monitoring of PostgreSQL metrics.
 
-=== Discovery ===
+### Discovery
 
 The following types of components will be automatically discovered. The
 attributes and collections will be updated on Zenoss' normal remodeling
 interval which defaults to every 12 hours.
 
-;Databases
-* Attributes: Name, OID, Size, Table Count
-* Collections: Tables
+Databases:
 
-;Tables
-* Attributes: Name, OID, Schema, Size, Size, Database
+*   Attributes:
 
-=== Monitoring ===
+    - Name
+    - OID
+    - Size
+    - Table Count
+
+*   Collections:
+
+    - Tables
+
+Tables:
+
+*   Attributes: Name
+
+    - OID
+    - Schema
+    - Size
+    - Size
+    - Database
+
+### Monitoring
 
 The following metrics will be collected every 5 minutes by default.
 
-;Server
-* Metrics: Summaries of all databases and tables.
+*    Server
 
-;Databases
-* Metrics: Size, Backends, Summaries of all tables.
-* Latency Metrics: Connection, SELECT 1
-* Connection Metrics: Total, Active, Idle
-* Duration Metrics: Active Transactions (min/avg/max), Idle Transactions (min/avg/max), Queries (min/avg/max)
-* Efficiency Metrics: Transaction Rollback Percentage, Tuple Fetch Percentage
-* Transaction Rate Metrics: Commits/sec, Rollbacks/sec
-* Tuple Rate Metrics: Returned/sec, Fetched/sec, Inserted/sec, Updated/sec, Deleted/sec
-* Lock Metrics: Total, Granted, Waiting, Exclusive, AccessExclusive
+     - Metrics: Summaries of all databases and tables.
 
-;Tables
-* Scan Rate Metrics: Sequential/sec, Indexed/sec
-* Tuple Rate Metrics: Sequentially Read/sec, Index Fetched/sec, Inserted/sec, Updated/sec, Hot Updated/sec, Deleted/sec
-* Tuple Metrics: Live, Dead
+*    Databases
 
-== Usage ==
+     - Metrics: Size, Backends, Summaries of all tables.
+     - Latency Metrics: Connection, SELECT 1
+     - Connection Metrics: Total, Active, Idle
+     - Duration Metrics: Active Transactions (min/avg/max), Idle Transactions (min/avg/max), Queries (min/avg/max)
+     - Efficiency Metrics: Transaction Rollback Percentage, Tuple Fetch Percentage
+     - Transaction Rate Metrics: Commits/sec, Rollbacks/sec
+     - Tuple Rate Metrics: Returned/sec, Fetched/sec, Inserted/sec, Updated/sec, Deleted/sec
+     - Lock Metrics: Total, Granted, Waiting, Exclusive, AccessExclusive
+
+*    Tables
+
+     - Scan Rate Metrics: Sequential/sec, Indexed/sec
+     - Tuple Rate Metrics: Sequentially Read/sec, Index Fetched/sec, Inserted/sec, Updated/sec, Hot Updated/sec, Deleted/sec
+     - Tuple Metrics: Live, Dead
+
+Usage
+--------------
 
 Once the PostgreSQL ZenPack is installed you will have the following new
 configuration properties which should be set either for device classes or
 individual devices.
 
-;Configuration Properties
-* ''zPostgreSQLPort'' - Port where PostgreSQL is listening. Default: 5432
-* ''zPostgreSQLUseSSL'' - Whether to use SSL or not. Default: False
-* ''zPostgreSQLUsername'' - Must be a superuser. Default: postgres
-* ''zPostgreSQLPassword'' - Password for user. No default.
+*    Configuration Properties
+
+     - *zPostgreSQLPort* - Port where PostgreSQL is listening. Default: 5432
+     - *zPostgreSQLUseSSL* - Whether to use SSL or not. Default: False
+     - *zPostgreSQLUsername* - Must be a superuser. Default: postgres
+     - *zPostgreSQLPassword* - Password for user. No default.
 
 In addition to setting these properties you must add the ''zenoss.PostgreSQL''
-modeler plugin to a device class or individual device. This modeler plugin
-will discover all databases and tables using the connectivity information
-provided through the above settings. Each database and table will
-automatically be monitored.
+modeler plugin to a device class or individual device. This modeler plugin will
+discover all databases and tables using the connectivity information provided
+through the above settings. Each database and table will automatically be
+monitored.
 
-=== PostgreSQL Server Impact ===
+### PostgreSQL Server Impact
 
-Zenoss will run the following queries every five (5) minutes. These queries
-are intended to be lightweight so as to not adversely affect the server's
+Zenoss will run the following queries every five (5) minutes. These queries are
+intended to be lightweight so as to not adversely affect the server's
 performance.
 
-<syntaxhighlight lang="sql">
+
+```sql
 -- Database statistics - Run once.
 SELECT d.datname,
        pg_database_size(s.datid) AS size,
@@ -104,12 +130,12 @@ SELECT relname,
        last_vacuum, last_autovacuum,
        last_analyze, last_autoanalyze
   FROM pg_stat_user_tables
-</syntaxhighlight>
+```
 
 The following queries will be run whenever the PostgreSQL server device is
 remodeled. This occur once every 12 hours.
 
-<syntaxhighlight lang="sql">
+```sql
 -- Database list - Run once.
 SELECT d.datname, s.datid, pg_database_size(s.datid) AS size
   FROM pg_database AS d
@@ -122,14 +148,18 @@ SELECT relname, relid, schemaname,
        pg_total_relation_size(relid) AS total_size
   FROM pg_stat_user_tables
 </syntaxhighlight>
+```
 
-== Changes ==
+Changes
+---------------
 
-;1.0.9
+1.0.9 (2017-04-27)
+
 * Filter PIDs for lock query (ZEN-15165)
 * Guard against locks in PGSQL poller (ZPS-312)
 
-;1.0.8
+1.0.8 (2014-11.06)
+
 * Handle null data by skipping it (ZEN-14276)
 * Update pg8000 lib to 1.9.14 (ZEN-12752)
 
