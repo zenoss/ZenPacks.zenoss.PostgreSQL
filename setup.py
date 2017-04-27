@@ -33,7 +33,7 @@ from setuptools import setup, find_packages
 # make build
 import subprocess
 p = subprocess.Popen('make build', shell=True)
-if p.poll() == None:
+if p.poll() is None:
     p.wait()
 if p.returncode != 0:
     raise Exception('make exited with an error: %s' % p.returncode)
