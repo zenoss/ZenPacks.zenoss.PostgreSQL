@@ -153,12 +153,16 @@ SELECT relname, relid, schemaname,
 Changes
 ---------------
 
-1.0.9 (2017-04-27)
+1.0.10
+
+* Add support for Bi-Directional Replication (ZPS-249)
+
+1.0.9
 
 * Filter PIDs for lock query (ZEN-15165)
 * Guard against locks in PGSQL poller (ZPS-312)
 
-1.0.8 (2014-11.06)
+1.0.8
 
 * Handle null data by skipping it (ZEN-14276)
 * Update pg8000 lib to 1.9.14 (ZEN-12752)
