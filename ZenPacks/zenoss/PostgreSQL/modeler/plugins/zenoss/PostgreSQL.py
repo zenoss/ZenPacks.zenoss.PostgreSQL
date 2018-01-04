@@ -26,6 +26,7 @@ class PostgreSQL(PythonPlugin):
         'zPostgreSQLUsername',
         'zPostgreSQLPassword',
         'zPostgreSQLUseSSL',
+        'zPostgreSQLDefaultDB',
     )
 
     def collect(self, device, unused):
@@ -34,7 +35,8 @@ class PostgreSQL(PythonPlugin):
             device.zPostgreSQLPort,
             device.zPostgreSQLUsername,
             device.zPostgreSQLPassword,
-            device.zPostgreSQLUseSSL)
+            device.zPostgreSQLUseSSL,
+            device.zPostgreSQLDefaultDB)
 
         results = {}
 
@@ -46,7 +48,7 @@ class PostgreSQL(PythonPlugin):
             return None
 
         for dbName in results['databases'].keys():
-            if dbName == 'postgres':
+            if dbName == device.zPostgreSQLDefaultDB:
                 continue
 
             results['databases'][dbName]['tables'] = {}
