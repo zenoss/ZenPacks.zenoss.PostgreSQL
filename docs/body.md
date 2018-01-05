@@ -81,6 +81,7 @@ individual devices.
      - *zPostgreSQLUseSSL* - Whether to use SSL or not. Default: False
      - *zPostgreSQLUsername* - Must be a superuser. Default: postgres
      - *zPostgreSQLPassword* - Password for user. No default.
+     - *zPostgreSQLDefaultDB* - Default database. Default: postgres
 
 In addition to setting these properties you must add the ''zenoss.PostgreSQL''
 modeler plugin to a device class or individual device. This modeler plugin will
@@ -147,18 +148,40 @@ SELECT relname, relid, schemaname,
        pg_relation_size(relid) AS size,
        pg_total_relation_size(relid) AS total_size
   FROM pg_stat_user_tables
-</syntaxhighlight>
 ```
+
+Limitations
+---------------
+
+### Troubleshooting Modeling
+
+If the device fails to model PostgreSQL components with the error:
+"WARNING zen.ZenModeler: Python client creation failed" you can either
+1) clear the events and remodel the device or 2) set the
+zSnmpMonitorIgnore property to True and remodel.
+
 
 Changes
 ---------------
 
-1.0.9 (2017-04-27)
+1.0.10
+
+* Add support for Bi-Directional Replication (ZPS-249)
+* Add support variable default database name (ZPS-2767)
+* Added zProperties:
+
+    - zPostgreSQLDefaultDB: Sets default database for administration data
+
+* Added doc updates for failed modeling (ZEN-29375)
+* Tested with Zenoss Resource Manager 5.3.3 ,Zenoss Resource Manager 6.0.1,
+  Zenoss Resource Manager 6.1.0 and Zenoss Resource Manager 4.2.5 RPS 743
+
+1.0.9
 
 * Filter PIDs for lock query (ZEN-15165)
 * Guard against locks in PGSQL poller (ZPS-312)
 
-1.0.8 (2014-11.06)
+1.0.8
 
 * Handle null data by skipping it (ZEN-14276)
 * Update pg8000 lib to 1.9.14 (ZEN-12752)

@@ -42,20 +42,22 @@ class PostgresPoller(object):
     _port = None
     _username = None
     _password = None
+    _default_db = None
 
-    def __init__(self, host, port, username, password, ssl):
+    def __init__(self, host, port, username, password, ssl, default_db):
         self._host = host
         self._port = port
         self._username = username
         self._password = password
         self._ssl = ssl
+        self._default_db = default_db
 
     def getData(self, pg):
         data = dict(events=[])
 
         data.update(
-            connectionLatency=pg.getConnectionLatencyForDatabase('postgres'),
-            queryLatency=pg.getQueryLatencyForDatabase('postgres'),
+            connectionLatency=pg.getConnectionLatencyForDatabase(self._default_db),
+            queryLatency=pg.getQueryLatencyForDatabase(self._default_db),
             )
 
         # Calculated server-level stats.
@@ -162,7 +164,9 @@ class PostgresPoller(object):
                 self._port,
                 self._username,
                 self._password,
-                self._ssl)
+                self._ssl,
+                self._default_db
+                )
 
             data = self.getData(pg)
             data['events'].append(dict(
@@ -196,11 +200,11 @@ class PostgresPoller(object):
         print json.dumps(clean_dict_data(data))
 
 if __name__ == '__main__':
-    usage = "Usage: {0} <host> <port> <username> <password <ssl>"
+    usage = "Usage: {0} <host> <port> <username> <password <ssl> <defaultDB>"
 
-    host = port = username = password = ssl = None
+    host = port = username = password = ssl = default_db = None
     try:
-        host, port, username, password, ssl = sys.argv[1:6]
+        host, port, username, password, ssl, default_db = sys.argv[1:7]
     except ValueError:
         print >> sys.stderr, usage.format(sys.argv[0])
         sys.exit(1)
@@ -208,5 +212,5 @@ if __name__ == '__main__':
     if ssl == 'False':
         ssl = False
 
-    poller = PostgresPoller(host, port, username, password, ssl)
+    poller = PostgresPoller(host, port, username, password, ssl, default_db)
     poller.printJSON()

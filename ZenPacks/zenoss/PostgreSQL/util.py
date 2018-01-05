@@ -84,14 +84,16 @@ class PgHelper(object):
     _username = None
     _password = None
     _ssl = None
+    _default_db = None
     _connections = None
 
-    def __init__(self, host, port, username, password, ssl):
+    def __init__(self, host, port, username, password, ssl, default_db):
         self._host = host
         self._port = port
         self._username = username
         self._password = password
         self._ssl = ssl
+        self._default_db = default_db
         self._connections = {}
 
     def close(self):
@@ -133,7 +135,7 @@ class PgHelper(object):
         return self._connections[db]['connection']
 
     def getDatabases(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._default_db).cursor()
 
         databases = {}
 
@@ -143,6 +145,7 @@ class PgHelper(object):
                 "  FROM pg_database AS d"
                 "  JOIN pg_stat_database AS s ON s.datname = d.datname"
                 " WHERE NOT datistemplate AND datallowconn"
+                "   AND d.datname != 'bdr_supervisordb'"
             )
 
             for row in cursor.fetchall():
@@ -156,7 +159,7 @@ class PgHelper(object):
         return databases
 
     def getDatabaseStats(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._default_db).cursor()
 
         databaseStats = {}
 
@@ -171,6 +174,7 @@ class PgHelper(object):
                 "       tup_updated, tup_deleted"
                 "  FROM pg_database AS d"
                 "  JOIN pg_stat_database AS s ON s.datname = d.datname"
+                "    AND d.datname != 'bdr_supervisordb'"
                 " WHERE NOT datistemplate AND datallowconn"
             )
 
@@ -244,7 +248,7 @@ class PgHelper(object):
         return tables
 
     def getConnectionStats(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._default_db).cursor()
 
         connectionStats = dict(databases={})
 
@@ -253,6 +257,7 @@ class PgHelper(object):
                 "SELECT datname, xact_start, query_start, backend_start,"
                 "       now() AS now"
                 "  FROM pg_stat_activity"
+                "  WHERE datname !='bdr_supervisordb'"
             )
 
             connectionStats.update(
@@ -399,7 +404,7 @@ class PgHelper(object):
         return connectionStats
 
     def getLocks(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._default_db).cursor()
 
         locksTemplate = dict(
             locksTotal=0,
@@ -434,7 +439,8 @@ class PgHelper(object):
                 "  FROM pg_database AS d"
                 "  INNER JOIN pg_locks AS l ON l.database = d.oid"
                 " WHERE NOT d.datistemplate AND d.datallowconn"
-                " AND pid <> pg_backend_pid()"
+                "   AND d.datname != 'bdr_supervisordb'"
+                "   AND pid <> pg_backend_pid()"
             )
 
             locks.update(locksTemplate)
