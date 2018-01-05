@@ -148,8 +148,18 @@ SELECT relname, relid, schemaname,
        pg_relation_size(relid) AS size,
        pg_total_relation_size(relid) AS total_size
   FROM pg_stat_user_tables
-</syntaxhighlight>
 ```
+
+Limitations
+---------------
+
+### Troubleshooting Modeling
+
+If the device fails to model PostgreSQL components with the error:
+"WARNING zen.ZenModeler: Python client creation failed" you can either
+1) clear the events and remodel the device or 2) set the
+zSnmpMonitorIgnore property to True and remodel.
+
 
 Changes
 ---------------
