@@ -81,6 +81,7 @@ individual devices.
      - *zPostgreSQLUseSSL* - Whether to use SSL or not. Default: False
      - *zPostgreSQLUsername* - Must be a superuser. Default: postgres
      - *zPostgreSQLPassword* - Password for user. No default.
+     - *zPostgreSQLDefaultDB* - Default database. Default: postgres
 
 In addition to setting these properties you must add the ''zenoss.PostgreSQL''
 modeler plugin to a device class or individual device. This modeler plugin will
@@ -156,6 +157,10 @@ Changes
 1.0.10
 
 * Add support for Bi-Directional Replication (ZPS-249)
+* Add support variable default database name (ZPS-2767)
+* Added zProperties:
+
+    - zPostgreSQLDefaultDB: Sets default database for administration data
 
 1.0.9
 

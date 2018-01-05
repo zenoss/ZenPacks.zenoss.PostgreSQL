@@ -84,14 +84,16 @@ class PgHelper(object):
     _username = None
     _password = None
     _ssl = None
+    _default_db = None
     _connections = None
 
-    def __init__(self, host, port, username, password, ssl):
+    def __init__(self, host, port, username, password, ssl, default_db):
         self._host = host
         self._port = port
         self._username = username
         self._password = password
         self._ssl = ssl
+        self._default_db = default_db
         self._connections = {}
 
     def close(self):
@@ -133,7 +135,7 @@ class PgHelper(object):
         return self._connections[db]['connection']
 
     def getDatabases(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._default_db).cursor()
 
         databases = {}
 
@@ -157,7 +159,7 @@ class PgHelper(object):
         return databases
 
     def getDatabaseStats(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._default_db).cursor()
 
         databaseStats = {}
 
@@ -246,7 +248,7 @@ class PgHelper(object):
         return tables
 
     def getConnectionStats(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._default_db).cursor()
 
         connectionStats = dict(databases={})
 
@@ -402,7 +404,7 @@ class PgHelper(object):
         return connectionStats
 
     def getLocks(self):
-        cursor = self.getConnection('postgres').cursor()
+        cursor = self.getConnection(self._default_db).cursor()
 
         locksTemplate = dict(
             locksTotal=0,
