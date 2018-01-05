@@ -172,6 +172,10 @@ Changes
 
     - zPostgreSQLDefaultDB: Sets default database for administration data
 
+* Added doc updates for failed modeling (ZEN-29375)
+* Tested with Zenoss Resource Manager 5.3.3 ,Zenoss Resource Manager 6.0.1,
+  Zenoss Resource Manager 6.1.0 and Zenoss Resource Manager 4.2.5 RPS 743
+
 1.0.9
 
 * Filter PIDs for lock query (ZEN-15165)
