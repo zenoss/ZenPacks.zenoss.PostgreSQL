@@ -62,6 +62,7 @@ from uuid import UUID
 from copy import deepcopy
 from calendar import timegm
 import os
+import re
 
 ZERO = timedelta(0)
 
@@ -1710,8 +1711,11 @@ class Connection(object):
                 self.pg_types[1186] = (FC_BINARY, interval_recv_float)
 
         elif key == b("server_version"):
+            # version string can fx. be "10.2 (Ubuntu 10.2-1.pgdg16.04+1)", so
+            # regex the elements that tell which DB version we are running
+            version_string = re.match('^[0-9\.]+',value.decode("ascii")).group(0)
             self._server_version = tuple(
-                map(int, value.decode("ascii").split('.')[:2]))
+                map(int, version_string.decode("ascii").split('.')[:2]))
             if self._server_version[0] == 8:
                 if self._server_version[1] > 1:
                     self._commands_with_count = (
