@@ -26,7 +26,7 @@ postgresFailure
 4
 </property>
 <property type="string" id="commandTemplate" mode="w" >
-poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' '${here/zPostgreSQLDefaultDB}' database
+/opt/zenoss/bin/python ${here/ZenPackManager/packs/ZenPacks.zenoss.PostgreSQL/path}/poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' '${here/zPostgreSQLDefaultDB}' database
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
@@ -1992,7 +1992,7 @@ postgresFailure
 4
 </property>
 <property type="string" id="commandTemplate" mode="w" >
-poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' '${here/zPostgreSQLDefaultDB}' server
+/opt/zenoss/bin/python ${here/ZenPackManager/packs/ZenPacks.zenoss.PostgreSQL/path}/poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' '${here/zPostgreSQLDefaultDB}' server
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
@@ -3961,7 +3961,7 @@ postgresFailure
 4
 </property>
 <property type="string" id="commandTemplate" mode="w" >
-poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' '${here/zPostgreSQLDefaultDB}' table
+/opt/zenoss/bin/python ${here/ZenPackManager/packs/ZenPacks.zenoss.PostgreSQL/path}/poll_postgres.py '${here/manageIp}' '${here/zPostgreSQLPort}' '${here/zPostgreSQLUsername}' '${here/zPostgreSQLPassword}' '${here/zPostgreSQLUseSSL}' '${here/zPostgreSQLDefaultDB}' table
 </property>
 <property type="int" id="cycletime" mode="w" >
 300
