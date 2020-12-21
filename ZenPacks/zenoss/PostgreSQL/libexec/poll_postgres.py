@@ -17,7 +17,7 @@ import json
 import sys
 import decimal
 
-from util import PgHelper
+from ZenPacks.zenoss.PostgreSQL.util import PgHelper
 
 
 def clean_dict_data(d):
