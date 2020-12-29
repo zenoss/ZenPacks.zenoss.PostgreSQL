@@ -18,7 +18,7 @@ from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
 
-from ....util import PgHelper
+from ZenPacks.zenoss.PostgreSQL.util import PgHelper
 
 class PostgreSQL(PythonPlugin):
     deviceProperties = PythonPlugin.deviceProperties + (
