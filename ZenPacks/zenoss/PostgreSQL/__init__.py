@@ -33,7 +33,6 @@ class ZenPack(ZenPackBase):
 
     def install(self, app):
         super(ZenPack, self).install(app)
-        self.symlinkPlugin()
         self.updateExistingRelations(app.zport.dmd)
 
     def remove(self, app, leaveObjects=False):
@@ -43,22 +42,8 @@ class ZenPack(ZenPackBase):
                 [ x for x in Device._relations if x[0] != 'pgDatabases' ])
 
             self.updateExistingRelations(app.zport.dmd)
-            self.removePluginSymlink()
 
         super(ZenPack, self).remove(app, leaveObjects=leaveObjects)
-
-    def symlinkPlugin(self):
-        log.info('Linking poll_postgres.py plugin into $ZENHOME/libexec/')
-        plugin_path = self.path('poll_postgres.py')
-
-        os.system('chmod 0755 {0}'.format(plugin_path))
-        os.system('ln -sf {0} {1}'.format(
-            plugin_path,
-            zenPath('libexec', 'poll_postgres.py')))
-
-    def removePluginSymlink(self):
-        log.info('Removing poll_postgres.py link from $ZENHOME/libexec/')
-        os.system('rm -f {0}'.format(zenPath('libexec', 'poll_postgres.py')))
 
     def updateExistingRelations(self, dmd):
         log.info('Adding pgDatabases relationship to existing devices')
