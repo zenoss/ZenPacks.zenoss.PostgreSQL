@@ -12,8 +12,8 @@
                  self.pg_types[1186] = (FC_BINARY, interval_recv_float)
  
          elif key == b("server_version"):
-+            # version string can fx. be "10.2 (Ubuntu 10.2-1.pgdg16.04+1)", so
-+            # regex the elements that tell which DB version we are 
++            # The posgresql server can return server version string in next format: "10.2 (Ubuntu 10.2-1.pgdg16.04+1)"
++            # so use regex extracting number of DB version 
 +            version_string = re.match('^[0-9\.]+',value.decode("ascii")).group(0)
              self._server_version = tuple(
 -                map(int, value.decode("ascii").split('.')[:2]))
