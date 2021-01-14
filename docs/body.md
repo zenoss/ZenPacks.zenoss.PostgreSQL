@@ -164,8 +164,9 @@ zSnmpMonitorIgnore property to True and remodel.
 Changes
 ---------------
 
-1.0.11
+1.0.12
 
+* Resolved isuue with error in pg8000 library on Ubuntu OS (ZPS-7424)
 * Resolved issue with falling data collecting after platform upgrade (ZPS-6818) 
 * Tested with Zenoss Cloud, Zenoss 6.4.1, Zenoss 6.5.0 and Service Impact 5.5.3
 
