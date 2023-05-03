@@ -12,6 +12,7 @@
 ###########################################################################
 
 import logging
+import re
 log = logging.getLogger('zen.PostgreSQL')
 
 from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
@@ -27,6 +28,7 @@ class PostgreSQL(PythonPlugin):
         'zPostgreSQLPassword',
         'zPostgreSQLUseSSL',
         'zPostgreSQLDefaultDB',
+        'zPostgreSQLTableRegex',
     )
 
     def collect(self, device, unused):
@@ -39,6 +41,7 @@ class PostgreSQL(PythonPlugin):
             device.zPostgreSQLDefaultDB)
 
         results = {}
+        pattern = re.compile(device.zPostgreSQLTableRegex)
 
         log.info("Getting database list")
         try:
@@ -55,8 +58,15 @@ class PostgreSQL(PythonPlugin):
 
             log.info("Getting tables list for {0}".format(dbName))
             try:
-                results['databases'][dbName]['tables'] = \
-                    pg.getTablesInDatabase(dbName)
+                
+                tables = pg.getTablesInDatabase(dbName)
+                if pattern.pattern != '':
+                    for key in tables.keys():
+                        if not pattern.match(key):
+                            del tables[key]
+                
+                results['databases'][dbName]['tables'] = tables    
+                
             except Exception, ex:
                 log.warn("Error getting tables list for {0}: {1}".format(
                     dbName, ex))
