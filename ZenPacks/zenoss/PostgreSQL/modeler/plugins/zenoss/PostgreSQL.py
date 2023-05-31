@@ -41,7 +41,7 @@ class PostgreSQL(PythonPlugin):
             device.zPostgreSQLDefaultDB)
 
         results = {}
-        pattern = re.compile(device.zPostgreSQLTableRegex)
+        pattern = re.compile(getattr(device, 'zPostgreSQLTableRegex', '').strip())
 
         log.info("Getting database list")
         try:
@@ -60,7 +60,7 @@ class PostgreSQL(PythonPlugin):
             try:
                 
                 tables = pg.getTablesInDatabase(dbName)
-                if pattern.pattern != '':
+                if pattern.pattern:
                     for key in tables.keys():
                         if not pattern.match(key):
                             del tables[key]
