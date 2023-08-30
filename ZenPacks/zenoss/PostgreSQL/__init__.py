@@ -29,15 +29,7 @@ class ZenPack(ZenPackBase):
         ('zPostgreSQLPassword', '', 'password'),
         ('zPostgreSQLUseSSL', False, 'boolean'),
         ('zPostgreSQLDefaultDB', 'postgres', 'string'),
-        ('zPostgreSQLTableRegex', '', 'string'),
     ]
-
-    packZProperties_data = {
-        'zPostgreSQLTableRegex': {
-            'description': "Filter tables from all databases if name matches regex provided",
-            'label': "Regex Table Filter",
-            'type': "string" },
-    }
 
     def install(self, app):
         super(ZenPack, self).install(app)
