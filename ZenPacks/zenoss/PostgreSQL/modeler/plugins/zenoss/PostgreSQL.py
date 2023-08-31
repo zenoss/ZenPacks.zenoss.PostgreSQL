@@ -59,7 +59,7 @@ class PostgreSQL(PythonPlugin):
                 results['databases'][dbName]['tables'] = pg.getTablesInDatabase(dbName)
                 
                 tables = pg.getTablesInDatabase(dbName)
-                if pattern.pattern:
+                if exclude_patterns:
                     for key in tables.keys():
                         if is_suppressed(key, exclude_patterns):
                             del tables[key]
