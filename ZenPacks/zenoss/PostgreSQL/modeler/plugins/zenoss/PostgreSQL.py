@@ -12,6 +12,8 @@
 ###########################################################################
 
 import logging
+import re
+
 log = logging.getLogger('zen.PostgreSQL')
 
 from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
@@ -20,6 +22,7 @@ from Products.ZenUtils.Utils import prepId
 
 from ZenPacks.zenoss.PostgreSQL.util import PgHelper, exclude_patterns_list, is_suppressed
 
+
 class PostgreSQL(PythonPlugin):
     deviceProperties = PythonPlugin.deviceProperties + (
         'zPostgreSQLPort',
@@ -27,6 +30,7 @@ class PostgreSQL(PythonPlugin):
         'zPostgreSQLPassword',
         'zPostgreSQLUseSSL',
         'zPostgreSQLDefaultDB',
+        'zPostgreSQLTableRegex',
     )
 
     def collect(self, device, unused):
@@ -56,8 +60,6 @@ class PostgreSQL(PythonPlugin):
 
             log.info("Getting tables list for {0}".format(dbName))
             try:
-                results['databases'][dbName]['tables'] = pg.getTablesInDatabase(dbName)
-                
                 tables = pg.getTablesInDatabase(dbName)
                 if exclude_patterns:
                     for key in tables.keys():
@@ -78,7 +80,7 @@ class PostgreSQL(PythonPlugin):
         if results is None:
             return None
 
-        maps = [ self.objectMap(dict(setPostgreSQL=True)) ]
+        maps = [self.objectMap(dict(setPostgreSQL=True))]
 
         databases = []
         for dbName, dbDetail in results['databases'].items():
