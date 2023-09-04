@@ -20,7 +20,7 @@ from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
 
-from ZenPacks.zenoss.PostgreSQL.util import PgHelper
+from ZenPacks.zenoss.PostgreSQL.util import PgHelper, exclude_patterns_list, is_suppressed
 
 
 class PostgreSQL(PythonPlugin):
@@ -43,7 +43,7 @@ class PostgreSQL(PythonPlugin):
             device.zPostgreSQLDefaultDB)
 
         results = {}
-        pattern = re.compile(getattr(device, 'zPostgreSQLTableRegex', '').strip())
+        exclude_patterns = exclude_patterns_list(getattr(device, 'zPostgreSQLTableRegex', []))
 
         log.info("Getting database list")
         try:
@@ -60,14 +60,13 @@ class PostgreSQL(PythonPlugin):
 
             log.info("Getting tables list for {0}".format(dbName))
             try:
-
                 tables = pg.getTablesInDatabase(dbName)
-                if pattern.pattern:
+                if exclude_patterns:
                     for key in tables.keys():
-                        if not pattern.match(key):
+                        if is_suppressed(key, exclude_patterns):
                             del tables[key]
-
-                results['databases'][dbName]['tables'] = tables
+                
+                results['databases'][dbName]['tables'] = tables    
 
             except Exception, ex:
                 log.warn("Error getting tables list for {0}: {1}".format(

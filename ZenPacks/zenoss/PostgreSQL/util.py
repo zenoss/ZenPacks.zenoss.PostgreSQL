@@ -545,3 +545,28 @@ class PgHelper(object):
             cursor.close()
 
         return tableStats
+
+def exclude_patterns_list(excludes):
+    exclude_patterns = []
+
+    for exclude in excludes:
+        exclude = exclude.strip()
+        if exclude == "" or exclude.startswith("#"):
+            continue
+
+        try:
+            exclude_patterns.append(re.compile(exclude))
+        except Exception:
+            LOG.warn("Invalid zPostgreSQLTableRegex value: '%s', this modeling filter will not be applied.", exclude)
+            continue
+
+    return exclude_patterns
+
+
+def is_suppressed(item, exclude_patterns):
+
+    for exclude_pattern in exclude_patterns:
+        if exclude_pattern.search(item):
+            return True
+
+    return False
