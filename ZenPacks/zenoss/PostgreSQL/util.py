@@ -16,6 +16,9 @@ import math
 import sys
 import time
 
+import re
+import logging
+LOG = logging.getLogger('zen.Nutanix.utils')
 
 def addLocalLibPath():
     """
