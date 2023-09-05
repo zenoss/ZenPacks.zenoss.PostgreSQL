@@ -15,7 +15,9 @@ import copy
 import math
 import sys
 import time
-
+import re
+import logging
+LOG = logging.getLogger('zen.PostgreSQL.utils')
 
 def addLocalLibPath():
     """
