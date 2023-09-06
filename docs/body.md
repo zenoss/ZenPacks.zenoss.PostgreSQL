@@ -164,6 +164,10 @@ zSnmpMonitorIgnore property to True and remodel.
 Changes
 ---------------
 
+1.0.13
+
+* Make PostgreSQL table modeling optional (ZPS-8554)
+
 1.0.12
 
 * Resolved isuue with error in pg8000 library on Ubuntu OS (ZPS-7424)

@@ -1,6 +1,10 @@
 Releases
 --------
 
+Version 1.0.13-<a rel="nofollow" class="external" href="https://delivery.zenoss.com/">Download</a>
+Released on 2023/9/7
+Tested with Zenoss 6.7.0, Zenoss Cloud and Service Impact 5.6.0
+
 Version 1.0.12-<a rel="nofollow" class="external" href="https://delivery.zenoss.com/">Download</a>
 Released on 2021/1/14
 Compatible with Zenoss 6.4.1 - 6.5.0, Zenoss Cloud and Service Impact 5.5.3
