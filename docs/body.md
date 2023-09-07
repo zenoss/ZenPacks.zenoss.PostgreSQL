@@ -167,6 +167,7 @@ Changes
 1.0.13
 
 * Make PostgreSQL table modeling optional (ZPS-8554)
+* Tested with Zenoss Cloud, Zenoss 6.7.0 and Service Impact 5.6.0
 
 1.0.12
 
