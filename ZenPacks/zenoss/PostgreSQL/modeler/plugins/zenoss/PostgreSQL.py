@@ -12,13 +12,16 @@
 ###########################################################################
 
 import logging
+import re
+
 log = logging.getLogger('zen.PostgreSQL')
 
 from Products.DataCollector.plugins.CollectorPlugin import PythonPlugin
 from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
 
-from ZenPacks.zenoss.PostgreSQL.util import PgHelper
+from ZenPacks.zenoss.PostgreSQL.util import PgHelper, exclude_patterns_list, is_suppressed
+
 
 class PostgreSQL(PythonPlugin):
     deviceProperties = PythonPlugin.deviceProperties + (
@@ -27,6 +30,7 @@ class PostgreSQL(PythonPlugin):
         'zPostgreSQLPassword',
         'zPostgreSQLUseSSL',
         'zPostgreSQLDefaultDB',
+        'zPostgreSQLTableRegex',
     )
 
     def collect(self, device, unused):
@@ -39,6 +43,7 @@ class PostgreSQL(PythonPlugin):
             device.zPostgreSQLDefaultDB)
 
         results = {}
+        exclude_patterns = exclude_patterns_list(getattr(device, 'zPostgreSQLTableRegex', []))
 
         log.info("Getting database list")
         try:
@@ -55,8 +60,14 @@ class PostgreSQL(PythonPlugin):
 
             log.info("Getting tables list for {0}".format(dbName))
             try:
-                results['databases'][dbName]['tables'] = \
-                    pg.getTablesInDatabase(dbName)
+                tables = pg.getTablesInDatabase(dbName)
+                if exclude_patterns:
+                    for key in tables.keys():
+                        if is_suppressed(key, exclude_patterns):
+                            del tables[key]
+                
+                results['databases'][dbName]['tables'] = tables    
+
             except Exception, ex:
                 log.warn("Error getting tables list for {0}: {1}".format(
                     dbName, ex))
@@ -69,7 +80,7 @@ class PostgreSQL(PythonPlugin):
         if results is None:
             return None
 
-        maps = [ self.objectMap(dict(setPostgreSQL=True)) ]
+        maps = [self.objectMap(dict(setPostgreSQL=True))]
 
         databases = []
         for dbName, dbDetail in results['databases'].items():

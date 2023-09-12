@@ -60,5 +60,7 @@ class Table(DeviceComponent, ManagedEntity, CollectedOrModeledMixin):
     event_key = "ComponentId"
 
     def device(self):
-        return self.database().device()
-
+        db = self.database()
+        if db:
+            return db.device()
+        return None
