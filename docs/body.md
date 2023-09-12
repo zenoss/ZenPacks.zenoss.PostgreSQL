@@ -82,6 +82,7 @@ individual devices.
      - *zPostgreSQLUsername* - Must be a superuser. Default: postgres
      - *zPostgreSQLPassword* - Password for user. No default.
      - *zPostgreSQLDefaultDB* - Default database. Default: postgres
+     - *zPostgreSQLTableRegex* - Filter tables of all databases with Regex. Default: ""
 
 In addition to setting these properties you must add the ''zenoss.PostgreSQL''
 modeler plugin to a device class or individual device. This modeler plugin will
@@ -163,6 +164,11 @@ zSnmpMonitorIgnore property to True and remodel.
 
 Changes
 ---------------
+
+1.0.13
+
+* Make PostgreSQL table modeling optional (ZPS-8554)
+* Tested with Zenoss Cloud, Zenoss 6.7.0 and Service Impact 5.6.1
 
 1.0.12
 
