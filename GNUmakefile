@@ -14,7 +14,6 @@
 PYTHON = $(shell which python)
 HERE=$(PWD)
 SRC_DIR=$(HERE)/src
-PG8000_DIR=$(SRC_DIR)/pg8000
 ZP_DIR=$(HERE)/ZenPacks/zenoss/PostgreSQL
 BIN_DIR=$(ZP_DIR)/bin
 LIB_DIR=$(ZP_DIR)/lib
@@ -25,16 +24,8 @@ egg:
 	# setup.py will call 'make build' before creating the egg
 	python setup.py bdist_egg
 
-build:
-	cd $(PG8000_DIR) ; \
-		PYTHONPATH="$(PYTHONPATH):$(LIB_DIR)" \
-		$(PYTHON) setup.py install \
-		--install-lib="$(LIB_DIR)" \
-		--install-scripts="$(BIN_DIR)"
-
 clean:
 	rm -rf build dist *.egg-info
 	find . -name '*.pyc' -exec rm {} \;
-	cd $(PG8000_DIR) ; rm -rf build dist *.egg-info
-	cd $(LIB_DIR) ; rm -rf *.egg-info pg8000
+	cd $(LIB_DIR) ; rm -rf *.egg-info
 

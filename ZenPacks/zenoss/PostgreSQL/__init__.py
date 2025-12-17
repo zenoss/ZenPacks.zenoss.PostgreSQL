@@ -43,7 +43,6 @@ class ZenPack(ZenPackBase):
 
     def install(self, app):
         super(ZenPack, self).install(app)
-        self.patchPostgreSQLDriver()
         self.updateExistingRelations(app.zport.dmd)
 
     def remove(self, app, leaveObjects=False):
@@ -54,29 +53,12 @@ class ZenPack(ZenPackBase):
 
             self.updateExistingRelations(app.zport.dmd)
 
-        # Revert all pg8000 library patches
-        self.patchPostgreSQLDriver(revert=True)
-
         super(ZenPack, self).remove(app, leaveObjects=leaveObjects)
 
     def updateExistingRelations(self, dmd):
         log.info('Adding pgDatabases relationship to existing devices')
         for device in dmd.Devices.getSubDevicesGen():
             device.buildRelations()
-
-    def patchPostgreSQLDriver(self, revert=False):
-        log.info('Patching pg8000 core library')
-        patch_dir = self.path('lib')
-
-        # Getting a list of all patches which will be applied
-        patches_list = [file for file in os.listdir(patch_dir) if file.endswith('.patch')]
-
-        cmd = "patch -p0 -d %s -i %s" if not revert else "patch -p0 -R -d %s -i %s"
-        for patch in patches_list:
-            os.system(cmd % (
-                os.path.join(patch_dir, 'pg8000'),
-                os.path.join(patch_dir, patch)
-            ))
 
 
 # Allow PostgreSQL databases to be related to any device.
