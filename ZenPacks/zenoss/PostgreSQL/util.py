@@ -77,7 +77,21 @@ def CollectedOrModeledProperty(propertyName):
     return property(getter)
 
 addLocalLibPath()
-from pg8000 import DBAPI
+try:
+    from twisted.enterprise import adbapi
+    from twisted.internet import defer
+    TWISTED_AVAILABLE = True
+    # Helper decorator that works even if Twisted is not available
+    def inlineCallbacks(f):
+        if TWISTED_AVAILABLE:
+            return defer.inlineCallbacks(f)
+        return f
+except ImportError:
+    TWISTED_AVAILABLE = False
+    LOG.debug("Twisted not available, using synchronous psycopg2 only")
+    # Dummy decorator if Twisted is not available
+    def inlineCallbacks(f):
+        return f
 
 
 class PgHelper(object):
@@ -88,6 +102,7 @@ class PgHelper(object):
     _ssl = None
     _default_db = None
     _connections = None
+    _pools = None  # Twisted connection pools for async operations
 
     def __init__(self, host, port, username, password, ssl, default_db):
         self._host = host
@@ -97,6 +112,38 @@ class PgHelper(object):
         self._ssl = ssl
         self._default_db = default_db
         self._connections = {}
+        self._pools = {}  # Twisted connection pools
+
+    def _getConnectionParams(self, db):
+        conn_params = {
+            'host': self._host,
+            'port': int(self._port),
+            'database': str(db),
+            'user': self._username,
+            'password': self._password,
+            'connect_timeout': 10,
+        }
+        # Convert SSL boolean to sslmode parameter
+        if self._ssl:
+            conn_params['sslmode'] = 'require'
+        else:
+            conn_params['sslmode'] = 'disable'
+        return conn_params
+
+    def getConnectionPool(self, db):
+        if not TWISTED_AVAILABLE:
+            raise RuntimeError("Twisted is not available. Cannot create connection pool.")
+        
+        if db not in self._pools:
+            conn_params = self._getConnectionParams(db)
+            self._pools[db] = adbapi.ConnectionPool(
+                'psycopg2',
+                cp_min=1,
+                cp_max=5,
+                cp_reconnect=True,
+                **conn_params
+            )
+        return self._pools[db]
 
     def close(self):
         for value in self._connections.values():
@@ -104,20 +151,27 @@ class PgHelper(object):
                 value['connection'].close()
             except Exception:
                 pass
+        
+        if TWISTED_AVAILABLE and self._pools:
+            for pool in self._pools.values():
+                try:
+                    pool.close()
+                except Exception:
+                    pass
+            self._pools.clear()
 
     def getConnection(self, db):
+        import psycopg2
+
         if db in self._connections and self._connections[db]:
             return self._connections[db]['connection']
 
         connection_begin = time.time()
-        connection = DBAPI.connect(
-            host=self._host,
-            port=int(self._port),
-            database=str(db),
-            user=self._username,
-            password=self._password,
-            socket_timeout=10,
-            ssl=self._ssl)
+        
+        # Prepare connection parameters for psycopg2
+        conn_params = self._getConnectionParams(db)
+        
+        connection = psycopg2.connect(**conn_params)
 
         connection_latency = time.time() - connection_begin
 
@@ -159,6 +213,30 @@ class PgHelper(object):
             cursor.close()
 
         return databases
+
+    @inlineCallbacks
+    def getDatabasesAsync(self, db=None):
+        if not TWISTED_AVAILABLE:
+            raise RuntimeError("Twisted is not available. Use getDatabases() instead.")
+        
+        if db is None:
+            db = self._default_db
+        
+        pool = self.getConnectionPool(db)
+        rows = yield pool.runQuery(
+            "SELECT d.datname, s.datid, pg_database_size(s.datid) AS size"
+            "  FROM pg_database AS d"
+            "  JOIN pg_stat_database AS s ON s.datname = d.datname"
+            " WHERE NOT datistemplate AND datallowconn"
+            "   AND d.datname != 'bdr_supervisordb'"
+        )
+        databases = {}
+        for row in rows:
+            databases[row[0]] = dict(
+                oid=row[1],
+                size=row[2]
+            )
+        defer.returnValue(databases)
 
     def getDatabaseStats(self):
         cursor = self.getConnection(self._default_db).cursor()
@@ -212,6 +290,59 @@ class PgHelper(object):
             cursor.close()
 
         return databaseStats
+
+    @inlineCallbacks
+    def getDatabaseStatsAsync(self, db=None):
+        if not TWISTED_AVAILABLE:
+            raise RuntimeError("Twisted is not available. Use getDatabaseStats() instead.")
+        
+        if db is None:
+            db = self._default_db
+        
+        pool = self.getConnectionPool(db)
+        rows = yield pool.runQuery(
+            "SELECT d.datname,"
+            "       pg_database_size(s.datid) AS size,"
+            "       numbackends,"
+            "       xact_commit, xact_rollback,"
+            "       blks_read, blks_hit,"
+            "       tup_returned, tup_fetched, tup_inserted,"
+            "       tup_updated, tup_deleted"
+            "  FROM pg_database AS d"
+            "  JOIN pg_stat_database AS s ON s.datname = d.datname"
+            "    AND d.datname != 'bdr_supervisordb'"
+            " WHERE NOT datistemplate AND datallowconn"
+        )
+        databaseStats = {}
+        for row in rows:
+            xactTotal = row[3] + row[4]
+            xactRollbackPct = 0
+            if xactTotal > 0:
+                xactRollbackPct = (float(row[4]) / xactTotal) * 100
+
+            tupTotal = row[7] + row[8]
+            tupFetchedPct = 0
+            if tupTotal > 0:
+                tupFetchedPct = (float(row[8]) / tupTotal) * 100
+
+            databaseStats[row[0]] = dict(
+                size=row[1],
+                numBackends=row[2],
+                xactCommit=row[3],
+                xactRollback=row[4],
+                xactTotal=xactTotal,
+                xactRollbackPct=xactRollbackPct,
+                blksRead=row[5],
+                blksHit=row[6],
+                tupReturned=row[7],
+                tupFetched=row[8],
+                tupTotal=tupTotal,
+                tupFetchedPct=tupFetchedPct,
+                tupInserted=row[9],
+                tupUpdated=row[10],
+                tupDeleted=row[11],
+            )
+        defer.returnValue(databaseStats)
 
     def getConnectionLatencyForDatabase(self, db):
         self.getConnection(db)

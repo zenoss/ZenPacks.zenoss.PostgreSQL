@@ -15,6 +15,7 @@ PYTHON = $(shell which python)
 HERE=$(PWD)
 SRC_DIR=$(HERE)/src
 PG8000_DIR=$(SRC_DIR)/pg8000
+PSYSCOPG2_DIR=$(SRC_DIR)/psycopg2-binary
 ZP_DIR=$(HERE)/ZenPacks/zenoss/PostgreSQL
 BIN_DIR=$(ZP_DIR)/bin
 LIB_DIR=$(ZP_DIR)/lib
@@ -31,6 +32,9 @@ build:
 		$(PYTHON) setup.py install \
 		--install-lib="$(LIB_DIR)" \
 		--install-scripts="$(BIN_DIR)"
+
+	cp -r $(PSYSCOPG2_DIR)/psycopg2 $(LIB_DIR)/
+	cp -r $(PSYSCOPG2_DIR)/psycopg2_binary.libs $(LIB_DIR)/
 
 clean:
 	rm -rf build dist *.egg-info
