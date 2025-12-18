@@ -77,21 +77,12 @@ def CollectedOrModeledProperty(propertyName):
     return property(getter)
 
 addLocalLibPath()
-try:
-    from twisted.enterprise import adbapi
-    from twisted.internet import defer
-    TWISTED_AVAILABLE = True
-    # Helper decorator that works even if Twisted is not available
-    def inlineCallbacks(f):
-        if TWISTED_AVAILABLE:
-            return defer.inlineCallbacks(f)
-        return f
-except ImportError:
-    TWISTED_AVAILABLE = False
-    LOG.debug("Twisted not available, using synchronous psycopg2 only")
-    # Dummy decorator if Twisted is not available
-    def inlineCallbacks(f):
-        return f
+import psycopg2
+
+# Twisted imports for async support
+from twisted.enterprise import adbapi
+from twisted.internet import defer
+LOG.debug("Twisted async methods enabled")
 
 
 class PgHelper(object):
@@ -102,7 +93,7 @@ class PgHelper(object):
     _ssl = None
     _default_db = None
     _connections = None
-    _pools = None  # Twisted connection pools for async operations
+    _pool = None  # Twisted connection pool for async
 
     def __init__(self, host, port, username, password, ssl, default_db):
         self._host = host
@@ -112,38 +103,7 @@ class PgHelper(object):
         self._ssl = ssl
         self._default_db = default_db
         self._connections = {}
-        self._pools = {}  # Twisted connection pools
-
-    def _getConnectionParams(self, db):
-        conn_params = {
-            'host': self._host,
-            'port': int(self._port),
-            'database': str(db),
-            'user': self._username,
-            'password': self._password,
-            'connect_timeout': 10,
-        }
-        # Convert SSL boolean to sslmode parameter
-        if self._ssl:
-            conn_params['sslmode'] = 'require'
-        else:
-            conn_params['sslmode'] = 'disable'
-        return conn_params
-
-    def getConnectionPool(self, db):
-        if not TWISTED_AVAILABLE:
-            raise RuntimeError("Twisted is not available. Cannot create connection pool.")
-        
-        if db not in self._pools:
-            conn_params = self._getConnectionParams(db)
-            self._pools[db] = adbapi.ConnectionPool(
-                'psycopg2',
-                cp_min=1,
-                cp_max=5,
-                cp_reconnect=True,
-                **conn_params
-            )
-        return self._pools[db]
+        self._pool = None
 
     def close(self):
         for value in self._connections.values():
@@ -152,27 +112,33 @@ class PgHelper(object):
             except Exception:
                 pass
         
-        if TWISTED_AVAILABLE and self._pools:
-            for pool in self._pools.values():
-                try:
-                    pool.close()
-                except Exception:
-                    pass
-            self._pools.clear()
+        # Close Twisted connection pool if exists
+        if self._pool is not None:
+            try:
+                self._pool.close()
+                self._pool = None
+            except Exception:
+                pass
 
     def getConnection(self, db):
-        import psycopg2
-
         if db in self._connections and self._connections[db]:
             return self._connections[db]['connection']
 
         connection_begin = time.time()
-        
-        # Prepare connection parameters for psycopg2
-        conn_params = self._getConnectionParams(db)
-        
-        connection = psycopg2.connect(**conn_params)
-
+        conn_kwargs = {
+            'host': self._host,
+            'port': int(self._port),
+            'database': str(db),
+            'user': self._username,
+            'password': self._password,
+            'connect_timeout': 10,
+        }
+        if self._ssl:
+            conn_kwargs['sslmode'] = 'require'
+        else:
+            conn_kwargs['sslmode'] = 'disable'
+            
+        connection = psycopg2.connect(**conn_kwargs)
         connection_latency = time.time() - connection_begin
 
         query_begin = time.time()
@@ -213,30 +179,6 @@ class PgHelper(object):
             cursor.close()
 
         return databases
-
-    @inlineCallbacks
-    def getDatabasesAsync(self, db=None):
-        if not TWISTED_AVAILABLE:
-            raise RuntimeError("Twisted is not available. Use getDatabases() instead.")
-        
-        if db is None:
-            db = self._default_db
-        
-        pool = self.getConnectionPool(db)
-        rows = yield pool.runQuery(
-            "SELECT d.datname, s.datid, pg_database_size(s.datid) AS size"
-            "  FROM pg_database AS d"
-            "  JOIN pg_stat_database AS s ON s.datname = d.datname"
-            " WHERE NOT datistemplate AND datallowconn"
-            "   AND d.datname != 'bdr_supervisordb'"
-        )
-        databases = {}
-        for row in rows:
-            databases[row[0]] = dict(
-                oid=row[1],
-                size=row[2]
-            )
-        defer.returnValue(databases)
 
     def getDatabaseStats(self):
         cursor = self.getConnection(self._default_db).cursor()
@@ -290,59 +232,6 @@ class PgHelper(object):
             cursor.close()
 
         return databaseStats
-
-    @inlineCallbacks
-    def getDatabaseStatsAsync(self, db=None):
-        if not TWISTED_AVAILABLE:
-            raise RuntimeError("Twisted is not available. Use getDatabaseStats() instead.")
-        
-        if db is None:
-            db = self._default_db
-        
-        pool = self.getConnectionPool(db)
-        rows = yield pool.runQuery(
-            "SELECT d.datname,"
-            "       pg_database_size(s.datid) AS size,"
-            "       numbackends,"
-            "       xact_commit, xact_rollback,"
-            "       blks_read, blks_hit,"
-            "       tup_returned, tup_fetched, tup_inserted,"
-            "       tup_updated, tup_deleted"
-            "  FROM pg_database AS d"
-            "  JOIN pg_stat_database AS s ON s.datname = d.datname"
-            "    AND d.datname != 'bdr_supervisordb'"
-            " WHERE NOT datistemplate AND datallowconn"
-        )
-        databaseStats = {}
-        for row in rows:
-            xactTotal = row[3] + row[4]
-            xactRollbackPct = 0
-            if xactTotal > 0:
-                xactRollbackPct = (float(row[4]) / xactTotal) * 100
-
-            tupTotal = row[7] + row[8]
-            tupFetchedPct = 0
-            if tupTotal > 0:
-                tupFetchedPct = (float(row[8]) / tupTotal) * 100
-
-            databaseStats[row[0]] = dict(
-                size=row[1],
-                numBackends=row[2],
-                xactCommit=row[3],
-                xactRollback=row[4],
-                xactTotal=xactTotal,
-                xactRollbackPct=xactRollbackPct,
-                blksRead=row[5],
-                blksHit=row[6],
-                tupReturned=row[7],
-                tupFetched=row[8],
-                tupTotal=tupTotal,
-                tupFetchedPct=tupFetchedPct,
-                tupInserted=row[9],
-                tupUpdated=row[10],
-                tupDeleted=row[11],
-            )
-        defer.returnValue(databaseStats)
 
     def getConnectionLatencyForDatabase(self, db):
         self.getConnection(db)
@@ -678,6 +567,136 @@ class PgHelper(object):
             cursor.close()
 
         return tableStats
+
+    def _getConnectionPool(self):
+        """Get or create Twisted connection pool for async operations."""
+        if self._pool is None:
+            conn_kwargs = {
+                'host': self._host,
+                'port': int(self._port),
+                'user': self._username,
+                'password': self._password,
+                'database': str(self._default_db),
+            }
+            # Handle SSL parameter
+            if self._ssl:
+                conn_kwargs['sslmode'] = 'require'
+            else:
+                conn_kwargs['sslmode'] = 'disable'
+                
+            self._pool = adbapi.ConnectionPool(
+                'psycopg2',
+                cp_min=1,
+                cp_max=3,
+                cp_reconnect=True,
+                **conn_kwargs
+            )
+            LOG.debug("Created Twisted connection pool with psycopg2")
+        
+        return self._pool
+    
+    @defer.inlineCallbacks
+    def getDatabasesAsync(self):
+        """Async version of getDatabases() - returns Deferred."""
+        try:
+            LOG.debug("Creating connection pool for async getDatabases")
+            pool = self._getConnectionPool()
+            LOG.debug("Running async query for databases")
+            rows = yield pool.runQuery(
+                "SELECT d.datname, s.datid, pg_database_size(s.datid) AS size"
+                "  FROM pg_database AS d"
+                "  JOIN pg_stat_database AS s ON s.datname = d.datname"
+                " WHERE NOT datistemplate AND datallowconn"
+                "   AND d.datname != 'bdr_supervisordb'"
+            )
+            
+            LOG.debug("Processing {0} database rows".format(len(rows)))
+            databases = {}
+            for row in rows:
+                databases[row[0]] = dict(
+                    oid=row[1],
+                    size=row[2]
+                )
+            
+            LOG.debug("Async getDatabases successful, returning {0} databases".format(len(databases)))
+            defer.returnValue(databases)
+        except Exception as ex:
+            LOG.error("Async getDatabases failed: %s, falling back to sync", ex)
+            import traceback
+            LOG.error("Traceback: %s", traceback.format_exc())
+            # Fallback to sync on error
+            try:
+                LOG.info("Attempting sync fallback for getDatabases")
+                result = self.getDatabases()
+                LOG.info("Sync fallback successful, got {0} databases".format(len(result)))
+                defer.returnValue(result)
+            except Exception as ex2:
+                LOG.error("Sync fallback also failed: %s", ex2)
+                defer.returnValue({})
+    
+    @defer.inlineCallbacks
+    def getTablesInDatabaseAsync(self, db):
+        """Async version of getTablesInDatabase() - returns Deferred."""
+        try:
+            LOG.debug("Getting tables for database: %s (async)", db)
+            # Creating a separate pool for database
+            conn_kwargs = {
+                'host': self._host,
+                'port': int(self._port),
+                'user': self._username,
+                'password': self._password,
+                'database': str(db),
+            }
+            if self._ssl:
+                conn_kwargs['sslmode'] = 'require'
+            else:
+                conn_kwargs['sslmode'] = 'disable'
+            
+            db_pool = adbapi.ConnectionPool(
+                'psycopg2',
+                cp_min=1,
+                cp_max=2,
+                cp_reconnect=True,
+                **conn_kwargs
+            )
+            
+            try:
+                rows = yield db_pool.runQuery(
+                    "SELECT a.relname, a.relid, a.schemaname, b.size, a.total_size from"
+                    " ( select relname, "
+                    "   relid, schemaname,"
+                    "   pg_total_relation_size(relid) total_size"
+                    " FROM pg_stat_user_tables) a, "
+                    " (select relname, relpages * (current_setting('block_size'))::numeric size FROM pg_class) b "
+                    " where a.relname=b.relname"
+                )
+                
+                tables = {}
+                for row in rows:
+                    tables[row[0]] = dict(
+                        oid=row[1],
+                        schema=row[2],
+                        size=row[3],
+                        totalSize=row[4],
+                    )
+                
+                LOG.debug("Got %d tables from database %s (async)", len(tables), db)
+                defer.returnValue(tables)
+            finally:
+                # Close the database-specific pool
+                db_pool.close()
+        except Exception as ex:
+            LOG.error("Async getTablesInDatabase(%s) failed: %s, falling back to sync", db, ex)
+            import traceback
+            LOG.error("Traceback: %s", traceback.format_exc())
+            # Fallback to sync on error
+            try:
+                result = self.getTablesInDatabase(db)
+                LOG.info("Sync fallback successful for database %s, got %d tables", db, len(result))
+                defer.returnValue(result)
+            except Exception as ex2:
+                LOG.error("Sync fallback also failed for database %s: %s", db, ex2)
+                defer.returnValue({})
 
 def exclude_patterns_list(excludes):
     exclude_patterns = []

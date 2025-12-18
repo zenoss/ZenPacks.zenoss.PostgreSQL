@@ -12,7 +12,6 @@
 ###########################################################################
 
 import logging
-import re
 
 log = logging.getLogger('zen.PostgreSQL')
 
@@ -21,6 +20,8 @@ from Products.DataCollector.plugins.DataMaps import ObjectMap, RelationshipMap
 from Products.ZenUtils.Utils import prepId
 
 from ZenPacks.zenoss.PostgreSQL.util import PgHelper, exclude_patterns_list, is_suppressed
+
+from twisted.internet import defer
 
 
 class PostgreSQL(PythonPlugin):
@@ -33,7 +34,9 @@ class PostgreSQL(PythonPlugin):
         'zPostgreSQLTableRegex',
     )
 
+    @defer.inlineCallbacks
     def collect(self, device, unused):
+        """Async collect using Twisted Deferred for better performance."""
         pg = PgHelper(
             device.manageIp,
             device.zPostgreSQLPort,
@@ -45,36 +48,58 @@ class PostgreSQL(PythonPlugin):
         results = {}
         exclude_patterns = exclude_patterns_list(getattr(device, 'zPostgreSQLTableRegex', []))
 
-        log.info("Getting database list")
+        log.info("Getting database list (async)")
         try:
-            results['databases'] = pg.getDatabases()
+            databases = yield pg.getDatabasesAsync()
+            log.info("Found {0} databases".format(len(databases)))
+            results['databases'] = databases
         except Exception, ex:
-            log.warn("Error getting database list: {0}".format(ex))
-            return None
+            log.error("Error getting database list: {0}".format(ex))
+            import traceback
+            log.error("Traceback: {0}".format(traceback.format_exc()))
+            defer.returnValue(None)
+            return
+
+        # Collect tables from all databases in parallel
+        table_deferreds = []
+        db_names = []
 
         for dbName in results['databases'].keys():
             if dbName == device.zPostgreSQLDefaultDB:
                 continue
 
             results['databases'][dbName]['tables'] = {}
+            db_names.append(dbName)
+            table_deferreds.append(pg.getTablesInDatabaseAsync(dbName))
 
-            log.info("Getting tables list for {0}".format(dbName))
-            try:
-                tables = pg.getTablesInDatabase(dbName)
+        if table_deferreds:
+            log.info("Getting tables list for {0} databases in parallel".format(len(db_names)))
+            # Get all tables in parallel using DeferredList
+            all_tables = yield defer.DeferredList(table_deferreds, consumeErrors=True)
+
+            for i, (success, result) in enumerate(all_tables):
+                dbName = db_names[i]
+
+                if not success:
+                    log.warn("Error getting tables list for {0}: {1}".format(
+                        dbName, result.getErrorMessage() if hasattr(result, 'getErrorMessage') else result))
+                    continue
+
+                tables = result
                 if exclude_patterns:
                     for key in tables.keys():
                         if is_suppressed(key, exclude_patterns):
                             del tables[key]
-                
-                results['databases'][dbName]['tables'] = tables    
 
-            except Exception, ex:
-                log.warn("Error getting tables list for {0}: {1}".format(
-                    dbName, ex))
+                results['databases'][dbName]['tables'] = tables
 
-                continue
+        # Close pool after collection
+        try:
+            pg.close()
+        except Exception:
+            pass
 
-        return results
+        defer.returnValue(results)
 
     def process(self, devices, results, unused):
         if results is None:
