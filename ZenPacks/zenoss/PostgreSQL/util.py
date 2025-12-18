@@ -79,23 +79,10 @@ def CollectedOrModeledProperty(propertyName):
 addLocalLibPath()
 import psycopg2
 
-# Try to import Twisted for async support
-try:
-    from twisted.enterprise import adbapi
-    from twisted.internet import defer
-    TWISTED_AVAILABLE = True
-    LOG.debug("Twisted available - async methods enabled")
-except ImportError:
-    TWISTED_AVAILABLE = False
-    LOG.debug("Twisted not available - using sync methods only")
-    # Dummy decorator if Twisted unavailable
-    class defer:
-        @staticmethod
-        def inlineCallbacks(f):
-            return f
-        @staticmethod
-        def returnValue(val):
-            return val
+# Twisted imports for async support
+from twisted.enterprise import adbapi
+from twisted.internet import defer
+LOG.debug("Twisted async methods enabled")
 
 
 class PgHelper(object):
@@ -581,13 +568,8 @@ class PgHelper(object):
 
         return tableStats
 
-    # ===== ASYNC METHODS (Twisted) =====
-    
     def _getConnectionPool(self):
         """Get or create Twisted connection pool for async operations."""
-        if not TWISTED_AVAILABLE:
-            raise RuntimeError("Twisted not available - cannot use async methods")
-        
         if self._pool is None:
             conn_kwargs = {
                 'host': self._host,
@@ -616,13 +598,10 @@ class PgHelper(object):
     @defer.inlineCallbacks
     def getDatabasesAsync(self):
         """Async version of getDatabases() - returns Deferred."""
-        if not TWISTED_AVAILABLE:
-            # Fallback to sync version
-            defer.returnValue(self.getDatabases())
-            return
-        
         try:
+            LOG.debug("Creating connection pool for async getDatabases")
             pool = self._getConnectionPool()
+            LOG.debug("Running async query for databases")
             rows = yield pool.runQuery(
                 "SELECT d.datname, s.datid, pg_database_size(s.datid) AS size"
                 "  FROM pg_database AS d"
@@ -631,6 +610,7 @@ class PgHelper(object):
                 "   AND d.datname != 'bdr_supervisordb'"
             )
             
+            LOG.debug("Processing {0} database rows".format(len(rows)))
             databases = {}
             for row in rows:
                 databases[row[0]] = dict(
@@ -638,23 +618,28 @@ class PgHelper(object):
                     size=row[2]
                 )
             
+            LOG.debug("Async getDatabases successful, returning {0} databases".format(len(databases)))
             defer.returnValue(databases)
         except Exception as ex:
             LOG.error("Async getDatabases failed: %s, falling back to sync", ex)
+            import traceback
+            LOG.error("Traceback: %s", traceback.format_exc())
             # Fallback to sync on error
-            defer.returnValue(self.getDatabases())
+            try:
+                LOG.info("Attempting sync fallback for getDatabases")
+                result = self.getDatabases()
+                LOG.info("Sync fallback successful, got {0} databases".format(len(result)))
+                defer.returnValue(result)
+            except Exception as ex2:
+                LOG.error("Sync fallback also failed: %s", ex2)
+                defer.returnValue({})
     
     @defer.inlineCallbacks
     def getTablesInDatabaseAsync(self, db):
         """Async version of getTablesInDatabase() - returns Deferred."""
-        if not TWISTED_AVAILABLE:
-            # Fallback to sync version
-            defer.returnValue(self.getTablesInDatabase(db))
-            return
-        
         try:
-            # For tables, we need a connection to specific database
-            # Create a separate pool for this database
+            LOG.debug("Getting tables for database: %s (async)", db)
+            # Creating a separate pool for database
             conn_kwargs = {
                 'host': self._host,
                 'port': int(self._port),
@@ -695,14 +680,23 @@ class PgHelper(object):
                         totalSize=row[4],
                     )
                 
+                LOG.debug("Got %d tables from database %s (async)", len(tables), db)
                 defer.returnValue(tables)
             finally:
                 # Close the database-specific pool
                 db_pool.close()
         except Exception as ex:
             LOG.error("Async getTablesInDatabase(%s) failed: %s, falling back to sync", db, ex)
+            import traceback
+            LOG.error("Traceback: %s", traceback.format_exc())
             # Fallback to sync on error
-            defer.returnValue(self.getTablesInDatabase(db))
+            try:
+                result = self.getTablesInDatabase(db)
+                LOG.info("Sync fallback successful for database %s, got %d tables", db, len(result))
+                defer.returnValue(result)
+            except Exception as ex2:
+                LOG.error("Sync fallback also failed for database %s: %s", db, ex2)
+                defer.returnValue({})
 
 def exclude_patterns_list(excludes):
     exclude_patterns = []
