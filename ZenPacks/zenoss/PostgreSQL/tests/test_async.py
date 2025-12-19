@@ -8,88 +8,56 @@
 ##############################################################################
 
 import Globals
-
-from mock import MagicMock, patch, Mock
+from mock import patch
 from Products.ZenTestCase.BaseTestCase import BaseTestCase
-
 from ZenPacks.zenoss.PostgreSQL.util import PgHelper
 
 
-class TestPgHelperAsync(BaseTestCase):
-    """Tests for PgHelper async methods"""
-    
+class TestPgHelperInitialization(BaseTestCase):
+    """
+    Tests for Async Connection Pool configuration logic.
+    Focuses on how PgHelper prepares arguments for adbapi.ConnectionPool.
+    """
+
     def setUp(self):
-        """Set up test fixtures"""
-        self.test_config = {
+        self.base_config = {
             'host': 'localhost',
             'port': 5432,
             'username': 'postgres',
-            'password': 'postgres',
-            'ssl': False,
+            'password': 'secret',
             'default_db': 'postgres'
         }
-    
+
     @patch('ZenPacks.zenoss.PostgreSQL.util.adbapi.ConnectionPool')
-    def test_get_connection_pool_creates_pool(self, mock_pool):
-        """Test that _getConnectionPool creates a pool"""
-        pg = PgHelper(
-            self.test_config['host'],
-            self.test_config['port'],
-            self.test_config['username'],
-            self.test_config['password'],
-            self.test_config['ssl'],
-            self.test_config['default_db']
-        )
-        
-        pool = pg._getConnectionPool()
-        
-        # Pool should be created
-        self.assertTrue(mock_pool.called)
-        # Verify psycopg2 driver is used
+    def test_pool_creation_parameters(self, mock_pool):
+        """
+        Verify that _getConnectionPool correctly translates configuration
+        parameters into arguments for adbapi.ConnectionPool.
+        This covers both SSL transformation logic and basic driver selection.
+        """
+        # Case 1: SSL Enabled -> sslmode='require'
+        helper_ssl = PgHelper(ssl=True, **self.base_config)
+        helper_ssl._getConnectionPool()
+
         args, kwargs = mock_pool.call_args
         self.assertEqual(args[0], 'psycopg2')
-        
-    @patch('ZenPacks.zenoss.PostgreSQL.util.adbapi.ConnectionPool')
-    def test_get_connection_pool_with_ssl(self, mock_pool):
-        """Test that _getConnectionPool handles SSL correctly"""
-        pg = PgHelper(
-            self.test_config['host'],
-            self.test_config['port'],
-            self.test_config['username'],
-            self.test_config['password'],
-            ssl=True,  # SSL enabled
-            default_db=self.test_config['default_db']
-        )
-        
-        pool = pg._getConnectionPool()
-        
-        # Verify SSL mode is set
-        args, kwargs = mock_pool.call_args
-        self.assertEqual(kwargs.get('sslmode'), 'require')
-    
-    @patch('ZenPacks.zenoss.PostgreSQL.util.adbapi.ConnectionPool')
-    def test_get_connection_pool_without_ssl(self, mock_pool):
-        """Test that _getConnectionPool handles no SSL correctly"""
-        pg = PgHelper(
-            self.test_config['host'],
-            self.test_config['port'],
-            self.test_config['username'],
-            self.test_config['password'],
-            ssl=False,  # SSL disabled
-            default_db=self.test_config['default_db']
-        )
-        
-        pool = pg._getConnectionPool()
-        
-        # Verify SSL mode is disabled
-        args, kwargs = mock_pool.call_args
-        self.assertEqual(kwargs.get('sslmode'), 'disable')
+        self.assertEqual(kwargs.get('sslmode'), 'require',
+                         "SSL=True should map to sslmode='require'")
+
+        # Reset mock for next assertion
+        mock_pool.reset_mock()
+
+        # Case 2: SSL Disabled -> sslmode='disable'
+        helper_no_ssl = PgHelper(ssl=False, **self.base_config)
+        helper_no_ssl._getConnectionPool()
+
+        _, kwargs = mock_pool.call_args
+        self.assertEqual(kwargs.get('sslmode'), 'disable',
+                         "SSL=False should map to sslmode='disable'")
 
 
 def test_suite():
-    """Test suite for async tests"""
     from unittest import TestSuite, makeSuite
     suite = TestSuite()
-    suite.addTest(makeSuite(TestPgHelperAsync))
+    suite.addTest(makeSuite(TestPgHelperInitialization))
     return suite
-
