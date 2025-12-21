@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (C) Zenoss, Inc. 2013-2025, all rights reserved.
+# Copyright (C) Zenoss, Inc. 2025, all rights reserved.
 #
 # This content is made available according to terms specified in
 # License.zenoss under the directory where your Zenoss product is installed.
@@ -186,7 +186,6 @@ class TestConnectionCleanup(BaseTestCase):
         helper.getConnection('db2')
         helper.close()
 
-        # Fix for older mock versions used in Zenoss (2.7) which lack assert_called_once()
         self.assertEqual(mock_conn1.close.call_count, 1)
         self.assertEqual(mock_conn2.close.call_count, 1)
 
