@@ -17,7 +17,9 @@ import sys
 import time
 import re
 import logging
+
 LOG = logging.getLogger('zen.PostgreSQL.utils')
+
 
 def addLocalLibPath():
     """
@@ -39,8 +41,8 @@ def datetimeDurationInSeconds(begin, end):
     # Taken from the implementation of timedelta.total_seconds in Python 2.7.
     # Added microseconds resolution by introducing a float.
     return (
-        d.microseconds + (d.seconds + d.days * 24 * 3600) * (10 ** 6)
-        ) / float(10 ** 6)
+            d.microseconds + (d.seconds + d.days * 24 * 3600) * (10 ** 6)
+    ) / float(10 ** 6)
 
 
 class CollectedOrModeledMixin:
@@ -71,10 +73,12 @@ def CollectedOrModeledProperty(propertyName):
     This uses a closure to make using CollectedOrModeledMixin easier to use in
     infos.
     """
+
     def getter(self):
         return self._object.getIntForValue(propertyName)
 
     return property(getter)
+
 
 addLocalLibPath()
 import psycopg2
@@ -82,6 +86,7 @@ import psycopg2
 # Twisted imports for async support
 from twisted.enterprise import adbapi
 from twisted.internet import defer
+
 LOG.debug("Twisted async methods enabled")
 
 
@@ -111,7 +116,7 @@ class PgHelper(object):
                 value['connection'].close()
             except Exception:
                 pass
-        
+
         # Close Twisted connection pool if exists
         if self._pool is not None:
             try:
@@ -137,7 +142,7 @@ class PgHelper(object):
             conn_kwargs['sslmode'] = 'require'
         else:
             conn_kwargs['sslmode'] = 'disable'
-            
+
         connection = psycopg2.connect(**conn_kwargs)
         connection_latency = time.time() - connection_begin
 
@@ -327,8 +332,8 @@ class PgHelper(object):
                         connectionStats['avgQueryDuration'] = queryDuration
                     else:
                         connectionStats['avgQueryDuration'] = (
-                            (connectionStats['avgQueryDuration'] + queryDuration)
-                            / 2)
+                                (connectionStats['avgQueryDuration'] + queryDuration)
+                                / 2)
 
                     database['minQueryDuration'] = min(
                         database.get('minQueryDuration', sys.maxint),
@@ -342,8 +347,8 @@ class PgHelper(object):
                         database['avgQueryDuration'] = queryDuration
                     else:
                         database['avgQueryDuration'] = (
-                            (database['avgQueryDuration'] + queryDuration)
-                            / 2)
+                                (database['avgQueryDuration'] + queryDuration)
+                                / 2)
 
                 # Active transaction duration summaries.
                 if xact_start is not None and query_start is not None:
@@ -362,8 +367,8 @@ class PgHelper(object):
                         connectionStats['avgTxnDuration'] = txnDuration
                     else:
                         connectionStats['avgTxnDuration'] = (
-                            (connectionStats['avgTxnDuration'] + txnDuration)
-                            / 2)
+                                (connectionStats['avgTxnDuration'] + txnDuration)
+                                / 2)
 
                     database['minTxnDuration'] = min(
                         database.get('minTxnDuration', sys.maxint),
@@ -377,8 +382,8 @@ class PgHelper(object):
                         database['avgTxnDuration'] = txnDuration
                     else:
                         database['avgTxnDuration'] = (
-                            (database['avgTxnDuration'] + txnDuration)
-                            / 2)
+                                (database['avgTxnDuration'] + txnDuration)
+                                / 2)
 
                 # Idle transaction duration summaries.
                 elif xact_start is not None and query_start is None:
@@ -400,8 +405,8 @@ class PgHelper(object):
                         connectionStats['avgIdleDuration'] = idleDuration
                     else:
                         connectionStats['avgIdleDuration'] = (
-                            (connectionStats['avgIdleDuration'] + idleDuration)
-                            / 2)
+                                (connectionStats['avgIdleDuration'] + idleDuration)
+                                / 2)
 
                     database['minIdleDuration'] = min(
                         database.get('minIdleDuration', sys.maxint),
@@ -415,8 +420,8 @@ class PgHelper(object):
                         database['avgIdleDuration'] = idleDuration
                     else:
                         database['avgIdleDuration'] = (
-                            (database['avgIdleDuration'] + idleDuration)
-                            / 2)
+                                (database['avgIdleDuration'] + idleDuration)
+                                / 2)
 
                 connectionStats['databases'][datname] = database
 
@@ -583,7 +588,7 @@ class PgHelper(object):
                 conn_kwargs['sslmode'] = 'require'
             else:
                 conn_kwargs['sslmode'] = 'disable'
-                
+
             self._pool = adbapi.ConnectionPool(
                 'psycopg2',
                 cp_min=1,
@@ -592,9 +597,9 @@ class PgHelper(object):
                 **conn_kwargs
             )
             LOG.debug("Created Twisted connection pool with psycopg2")
-        
+
         return self._pool
-    
+
     @defer.inlineCallbacks
     def getDatabasesAsync(self):
         """Async version of getDatabases() - returns Deferred."""
@@ -609,7 +614,7 @@ class PgHelper(object):
                 " WHERE NOT datistemplate AND datallowconn"
                 "   AND d.datname != 'bdr_supervisordb'"
             )
-            
+
             LOG.debug("Processing {0} database rows".format(len(rows)))
             databases = {}
             for row in rows:
@@ -617,10 +622,19 @@ class PgHelper(object):
                     oid=row[1],
                     size=row[2]
                 )
-            
+
             LOG.debug("Async getDatabases successful, returning {0} databases".format(len(databases)))
             defer.returnValue(databases)
         except Exception as ex:
+            msg = str(ex)
+            fatal_errors = [
+                "no pg_hba.conf entry",
+                "password authentication failed"
+            ]
+            if any(err in msg for err in fatal_errors):
+                LOG.error("Async getDatabases failed due to fatal config error: %s. Skipping sync fallback.", msg)
+                defer.returnValue({})
+
             LOG.error("Async getDatabases failed: %s, falling back to sync", ex)
             import traceback
             LOG.error("Traceback: %s", traceback.format_exc())
@@ -633,7 +647,7 @@ class PgHelper(object):
             except Exception as ex2:
                 LOG.error("Sync fallback also failed: %s", ex2)
                 defer.returnValue({})
-    
+
     @defer.inlineCallbacks
     def getTablesInDatabaseAsync(self, db):
         """Async version of getTablesInDatabase() - returns Deferred."""
@@ -651,7 +665,7 @@ class PgHelper(object):
                 conn_kwargs['sslmode'] = 'require'
             else:
                 conn_kwargs['sslmode'] = 'disable'
-            
+
             db_pool = adbapi.ConnectionPool(
                 'psycopg2',
                 cp_min=1,
@@ -659,7 +673,7 @@ class PgHelper(object):
                 cp_reconnect=True,
                 **conn_kwargs
             )
-            
+
             try:
                 rows = yield db_pool.runQuery(
                     "SELECT a.relname, a.relid, a.schemaname, b.size, a.total_size from"
@@ -670,7 +684,7 @@ class PgHelper(object):
                     " (select relname, relpages * (current_setting('block_size'))::numeric size FROM pg_class) b "
                     " where a.relname=b.relname"
                 )
-                
+
                 tables = {}
                 for row in rows:
                     tables[row[0]] = dict(
@@ -679,13 +693,24 @@ class PgHelper(object):
                         size=row[3],
                         totalSize=row[4],
                     )
-                
+
                 LOG.debug("Got %d tables from database %s (async)", len(tables), db)
                 defer.returnValue(tables)
             finally:
                 # Close the database-specific pool
                 db_pool.close()
         except Exception as ex:
+            # Handle fatal configuration errors where fallback is useless
+            msg = str(ex)
+            fatal_errors = [
+                "no pg_hba.conf entry",
+                "password authentication failed"
+            ]
+            if any(err in msg for err in fatal_errors):
+                LOG.error("Async getTablesInDatabase(%s) failed due to fatal config error: %s. Skipping sync fallback.",
+                          db, msg)
+                defer.returnValue({})
+
             LOG.error("Async getTablesInDatabase(%s) failed: %s, falling back to sync", db, ex)
             import traceback
             LOG.error("Traceback: %s", traceback.format_exc())
@@ -697,6 +722,7 @@ class PgHelper(object):
             except Exception as ex2:
                 LOG.error("Sync fallback also failed for database %s: %s", db, ex2)
                 defer.returnValue({})
+
 
 def exclude_patterns_list(excludes):
     exclude_patterns = []
@@ -716,7 +742,6 @@ def exclude_patterns_list(excludes):
 
 
 def is_suppressed(item, exclude_patterns):
-
     for exclude_pattern in exclude_patterns:
         if exclude_pattern.search(item):
             return True
