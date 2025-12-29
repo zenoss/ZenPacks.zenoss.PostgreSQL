@@ -50,7 +50,6 @@ class CollectedOrModeledMixin:
         # Get the recent collected value if possible.
         r = self.cacheRRDValue(value, None)
 
-        # Fall back to a modeled value if it exists.
         if r is None or math.isnan(r):
             r = getattr(self, 'modeled_{0}'.format(value), None)
 
@@ -638,7 +637,6 @@ class PgHelper(object):
             LOG.error("Async getDatabases failed: %s, falling back to sync", ex)
             import traceback
             LOG.error("Traceback: %s", traceback.format_exc())
-            # Fallback to sync on error
             try:
                 LOG.info("Attempting sync fallback for getDatabases")
                 result = self.getDatabases()
@@ -700,7 +698,6 @@ class PgHelper(object):
                 # Close the database-specific pool
                 db_pool.close()
         except Exception as ex:
-            # Handle fatal configuration errors where fallback is useless
             msg = str(ex)
             fatal_errors = [
                 "no pg_hba.conf entry",
@@ -714,7 +711,7 @@ class PgHelper(object):
             LOG.error("Async getTablesInDatabase(%s) failed: %s, falling back to sync", db, ex)
             import traceback
             LOG.error("Traceback: %s", traceback.format_exc())
-            # Fallback to sync on error
+
             try:
                 result = self.getTablesInDatabase(db)
                 LOG.info("Sync fallback successful for database %s, got %d tables", db, len(result))
