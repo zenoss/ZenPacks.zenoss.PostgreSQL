@@ -582,7 +582,7 @@ class PgHelper(object):
                 'password': self._password,
                 'database': str(self._default_db),
             }
-            # Handle SSL parameter
+
             if self._ssl:
                 conn_kwargs['sslmode'] = 'require'
             else:
