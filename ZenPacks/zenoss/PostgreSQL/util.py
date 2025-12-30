@@ -625,7 +625,7 @@ class PgHelper(object):
             LOG.debug("Async getDatabases successful, returning {0} databases".format(len(databases)))
             defer.returnValue(databases)
         except Exception as ex:
-            msg = str(ex)
+            msg = str(ex).strip()
             fatal_errors = [
                 "no pg_hba.conf entry",
                 "password authentication failed"
@@ -698,7 +698,7 @@ class PgHelper(object):
                 # Close the database-specific pool
                 db_pool.close()
         except Exception as ex:
-            msg = str(ex)
+            msg = str(ex).strip()
             fatal_errors = [
                 "no pg_hba.conf entry",
                 "password authentication failed"
