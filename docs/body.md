@@ -157,13 +157,18 @@ Limitations
 ### Troubleshooting Modeling
 
 If the device fails to model PostgreSQL components with the error:
-"WARNING zen.ZenModeler: Python client creation failed" you can either
-1) clear the events and remodel the device or 2) set the
-zSnmpMonitorIgnore property to True and remodel.
+"WARNING zen.ZenModeler: Python client creation failed" you can either:
+1. Clear the events and remodel the device. 
+2. Set the zSnmpMonitorIgnore property to True and remodel.
 
 
 Changes
 ---------------
+
+1.1.0
+* Implemented support for SCRAM-SHA-256 authentication (ZPS-9186)
+* Added message when modeling inaccessible via pg_gb file (ZPS-9196)
+* Tested with Zenoss Cloud, Zenoss 6.9.0 and Service Impact 5.7.1
 
 1.0.13
 
